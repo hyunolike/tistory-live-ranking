@@ -1,10 +1,10 @@
 # Tistory live ranking
 
-[hyunolike tech](https://hyunolike.tistory.com/)에 넣는 실시간 인기글 위젯입니다. 최근 1시간과 24시간 동안 많이 읽힌 글 5개를 보여줍니다. 기존 스킨의 붉은 강조색, 모노스페이스 숫자, 얇은 테두리를 따르고 Shadow DOM으로 CSS를 분리했습니다.
+[hyunolike tech](https://hyunolike.tistory.com/)에 넣는 실시간 인기글 위젯입니다. HOT 배지 옆에 인기 글 제목 하나를 보여주며 5초마다 순환합니다. 화살표를 누르면 최근 1시간과 24시간 동안 많이 읽힌 글 5개를 펼칩니다. 기존 스킨의 붉은 강조색, 모노스페이스 숫자, 얇은 테두리를 따르고 Shadow DOM으로 CSS를 분리했습니다.
 
 ![데스크톱 디자인 미리보기 — 순위와 조회수는 예시](docs/images/preview-1440.png)
 
-[모바일 미리보기](docs/images/preview-390.png) · [320px 미리보기](docs/images/preview-320.png)
+[펼친 모습](docs/images/expanded-390.png) · [모바일 미리보기](docs/images/preview-390.png) · [320px 미리보기](docs/images/preview-320.png)
 
 ## 운영 주소
 
@@ -19,6 +19,8 @@
 - TypeScript 웹 컴포넌트가 `/widget.js` 하나로 로드됩니다.
 - Cloudflare Workers가 API와 정적 파일을 제공하고 D1에 조회를 저장합니다.
 - 순위 기준은 **30분 중복 제외 조회**입니다. 같은 IP가 같은 글을 새로고침해도 30분 동안 한 번만 반영합니다.
+- 제목을 누르면 원문으로 이동하고 화살표로 TOP 5를 펼칩니다. Escape나 외부 클릭으로 닫을 수 있습니다.
+- 마우스 진입, 키보드 포커스, 목록 펼침, 숨긴 탭과 모션 줄이기 설정에서는 자동 순환을 멈춥니다. 일시정지 버튼으로 계속 정지할 수도 있습니다.
 - 기본 최근 24시간, 선택 최근 1시간, 60초마다 갱신합니다. 숨긴 탭에서는 갱신을 멈춥니다.
 - 홈, 검색, 공지, 미등록 글, 보호글은 집계하지 않습니다. 읽기 API는 검증한 글 제목과 URL만 제공합니다.
 - 카탈로그는 매시간 sitemap을 확인하고 검증이 오래된 글 10개를 다시 확인합니다. 24시간 이상 확인하지 못한 글은 집계와 표시에서 제외합니다.
@@ -94,7 +96,7 @@ GitHub Actions는 검증만 수행하며 배포하지 않습니다. 공개 저�
 <script src="https://tistory-live-ranking.tistory-live-ranking.workers.dev/widget.js" defer></script>
 ```
 
-색상은 컴포넌트의 CSS 변수 `--ranking-accent`, `--ranking-text`, `--ranking-muted`, `--ranking-border`로 조정할 수 있습니다. 수집을 끄고 디자인만 볼 때는 컴포넌트에 `demo`, 로더에 `data-track="false"`를 각각 지정합니다.
+색상은 컴포넌트의 CSS 변수 `--ranking-accent`, `--ranking-text`, `--ranking-muted`, `--ranking-border`로 조정할 수 있습니다. 첨부 레퍼런스처럼 보라색 배지는 `blog-live-ranking { --ranking-accent: #5e2bb8; }`로 설정합니다. 수집을 끄고 디자인만 볼 때는 컴포넌트에 `demo`, 로더에 `data-track="false"`를 각각 지정합니다.
 
 ## 수치의 의미와 운영 한계
 
