@@ -1,5 +1,7 @@
 import { ranking, recordView, cleanup } from './storage.ts';
 import { refreshCatalog } from './catalog.ts';
+import { HttpError,json,readJson,fingerprint } from './http.ts';
+import { siteRoute,refreshSites } from './sites.ts';
 
 interface Env {
   DB: D1Database;
@@ -7,12 +9,6 @@ interface Env {
   BLOG_ORIGIN: string;
   ENVIRONMENT: string;
   DEDUP_SECRET?: string;
-}
-
-class HttpError extends Error { constructor(public status: number, message: string) { super(message); } }
-
-function json(value: unknown, status = 200, headers: Record<string,string> = {}): Response {
-  return Response.json(value, {status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff',...headers}});
 }
 
 function allowed(request: Request, env: Env): string | null {
@@ -23,35 +19,9 @@ function allowed(request: Request, env: Env): string | null {
 }
 
 async function body(request: Request): Promise<{postId:string}> {
-  if (request.headers.get('Content-Type')?.split(';')[0].trim().toLowerCase() !== 'application/json') throw new HttpError(415,'JSON body required');
-  if (Number(request.headers.get('Content-Length')) > 1024) throw new HttpError(413,'Body exceeds 1KiB');
-  const reader = request.body?.getReader();
-  if (!reader) throw new HttpError(400,'Body required');
-  const chunks: Uint8Array[] = [];
-  let size = 0;
-  for (;;) {
-    const chunk = await reader.read();
-    if (chunk.done) break;
-    size += chunk.value.byteLength;
-    if (size > 1024) { await reader.cancel(); throw new HttpError(413,'Body exceeds 1KiB'); }
-    chunks.push(chunk.value);
-  }
-  const buffer = new Uint8Array(size);
-  let offset = 0;
-  for (const chunk of chunks) { buffer.set(chunk,offset); offset += chunk.length; }
-  let value: unknown;
-  try { value = JSON.parse(new TextDecoder().decode(buffer)); } catch { throw new HttpError(400,'Invalid JSON'); }
-  if (!value || typeof value !== 'object' || !('postId' in value) || typeof value.postId !== 'string' || !/^[1-9]\d{0,9}$/.test(value.postId)) throw new HttpError(400,'Invalid post ID');
+  const value=await readJson(request);
+  if (!value || typeof value.postId!=='string' || !/^[1-9]\d{0,9}$/.test(value.postId)) throw new HttpError(400,'Invalid post ID');
   return {postId:value.postId};
-}
-
-async function fingerprint(request: Request, env: Env, now: number): Promise<string> {
-  const ip = request.headers.get('CF-Connecting-IP') || (env.ENVIRONMENT === 'development' ? '127.0.0.1' : null);
-  if (!ip || !env.DEDUP_SECRET || env.DEDUP_SECRET.length < 32) throw new HttpError(503,'Collector is not configured');
-  const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey('raw',encoder.encode(env.DEDUP_SECRET),{name:'HMAC',hash:'SHA-256'},false,['sign']);
-  const signature = await crypto.subtle.sign('HMAC',key,encoder.encode(`${new Date(now).toISOString().slice(0,10)}:${ip}`));
-  return [...new Uint8Array(signature)].map(n => n.toString(16).padStart(2,'0')).join('');
 }
 
 export default {
@@ -62,6 +32,8 @@ export default {
     const writeCors: Record<string,string> = origin ? {'Access-Control-Allow-Origin':origin,'Vary':'Origin'} : {};
     try {
       if (url.pathname === '/health') return json({status:'ok',service:'tistory-live-ranking'});
+      const siteResponse=await siteRoute(request,env);
+      if(siteResponse)return siteResponse;
       if (url.pathname === '/api/views') {
         if (request.method === 'OPTIONS') {
           if (!origin) throw new HttpError(403,'Origin not allowed');
@@ -108,6 +80,6 @@ export default {
   },
   async scheduled(_event: ScheduledController, env: Env): Promise<void> {
     await cleanup(env.DB,Date.now());
-    await refreshCatalog(env.DB,Date.now());
+    try {await refreshCatalog(env.DB,Date.now());}finally{await refreshSites(env.DB,Date.now());}
   }
 } satisfies ExportedHandler<Env>;

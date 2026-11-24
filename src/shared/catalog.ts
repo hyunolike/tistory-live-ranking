@@ -33,7 +33,7 @@ function decode(value: string): string {
   });
 }
 
-export function parsePost(html: string, id: string, now: number): CatalogPost | null {
+export function parsePost(html: string, id: string, now: number, origin=BLOG_ORIGIN): CatalogPost | null {
   let inHead=true, explicitHead=false, inertDepth=0, protectedPage=false, publicBody=false;
   let canonical:string|undefined, title:string|undefined, type:string|undefined;
   const inertStack:boolean[]=[];
@@ -47,28 +47,29 @@ export function parsePost(html: string, id: string, now: number): CatalogPost | 
       // Honor an explicit head boundary; infer it only for HTML fragments.
       if(name==='body'||(!explicitHead&&!headTags.has(name)))inHead=false;
       if(/(?:^|\s)(?:area-protected|article-header-protected)(?:\s|$)/.test(a.class??''))protectedPage=true;
+      if(name==='input'&&a.type?.toLowerCase()==='password')protectedPage=true;
       if(name==='meta'&&inHead){if(a.property==='og:title')title??=a.content?.trim();if(a.property==='og:type')type??=a.content;}
       if(name==='link'&&inHead&&a.rel==='canonical')canonical??=a.href;
-      if(!inHead&&a.id==='article-view')publicBody=true;
+      if(!inHead&&(a.id==='article-view'||/(?:^|\s)(?:contents_style|tt_article_useless_p_margin)(?:\s|$)/.test(a.class??'')))publicBody=true;
     },
     onclosetag(name){const inert=inertStack.pop();if(inert)inertDepth--;if(name==='head'&&!inert){explicitHead=false;inHead=false;}}
   },{decodeEntities:true});
   parser.end(html);
-  if (protectedPage || !publicBody || type !== 'article' || !canonical || postIdFromUrl(canonical) !== id || !title || title.length > 300) return null;
-  return { id, title, url:`${BLOG_ORIGIN}/${id}`, verifiedAt:now };
+  if (protectedPage || !publicBody || type !== 'article' || !canonical || postIdFromUrl(canonical,origin) !== id || !title || title.length > 300) return null;
+  return { id, title, url:`${origin}/${id}`, verifiedAt:now };
 }
 
-export function sitemapIds(xml: string): string[] {
+export function sitemapIds(xml: string, origin=BLOG_ORIGIN): string[] {
   if (!/<urlset\b/i.test(xml) || !/<\/urlset>/i.test(xml)) throw new Error('Expected a complete sitemap urlset');
-  const ids = [...new Set([...xml.matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/g)].map(m => postIdFromUrl(decode(m[1]))).filter((id): id is string => id !== null))];
+  const ids = [...new Set([...xml.matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/g)].map(m => postIdFromUrl(decode(m[1]),origin)).filter((id): id is string => id !== null))];
   if (!ids.length || ids.length > 1000) throw new Error('Sitemap has no supported posts or exceeds 1000 posts');
   return ids;
 }
 
-export async function fetchPost(id: string, now: number): Promise<CatalogPost | null> {
-  const response = await fetch(`${BLOG_ORIGIN}/${id}`, { redirect:'manual', signal:AbortSignal.timeout(10_000) });
+export async function fetchPost(id: string, now: number, origin=BLOG_ORIGIN): Promise<CatalogPost | null> {
+  const response = await fetch(`${origin}/${id}`, { redirect:'manual', signal:AbortSignal.timeout(10_000) });
   if (response.status === 404 || response.status === 410) return null;
   if (!response.ok) throw new Error(`Post ${id}: HTTP ${response.status}`);
   const html = await readLimited(response,2*1024*1024);
-  return parsePost(html, id, now);
+  return parsePost(html, id, now, origin);
 }

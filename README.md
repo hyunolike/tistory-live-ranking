@@ -6,6 +6,17 @@
 
 [펼친 모습](docs/images/expanded-390.png) · [모바일 미리보기](docs/images/preview-390.png) · [320px 미리보기](docs/images/preview-320.png)
 
+## 다른 티스토리에도 설치하기
+
+[주소로 설치 코드 만들기](https://tistory-live-ranking.tistory-live-ranking.workers.dev/start/)에서 자신의 `이름.tistory.com` 주소를 입력합니다. 발급한 코드를 스킨 공통 HTML 영역에 붙여 넣고 저장한 뒤, 설치 페이지의 **설치 확인하기**를 누르면 집계를 시작합니다. 로그인이 필요하지 않으며 티스토리 비밀번호를 입력하지 않습니다. 스킨은 소유자가 직접 적용합니다.
+
+숫자 주소와 `/entry/글제목` 주소, 일반 티스토리 공개 본문을 지원합니다. 개인 도메인과 기본 모바일웹은 지원하지 않습니다. sitemap 최대 1,000개 글을 대상으로 하며 처음에는 최대 3개를 검증하고 나머지는 실제 방문과 예약 작업에서 확인합니다. 집계 ID는 공개 식별자이며 관리자 비밀키가 아닙니다.
+
+- 같은 주소로 다시 등록하면 동일한 설치 코드를 받습니다.
+- 설치 확인은 분당 한 번, 새 주소 등록은 같은 IP에서 시간당 5회까지 가능합니다.
+- 블로그별 조회수와 중복 제외를 분리합니다. 기존 hyunolike 코드와 API도 유지합니다.
+- 신규 운영 환경은 `0003_sites.sql`까지 마이그레이션한 뒤 배포합니다. 기존 테이블과 통계를 이동하거나 삭제하지 않습니다.
+
 ## 운영 주소
 
 - [디자인 미리보기](https://tistory-live-ranking.tistory-live-ranking.workers.dev/): 순위와 조회수는 예시입니다.
@@ -108,6 +119,7 @@ Origin 검사는 인증이 아니며 공개 수집 API의 고의적 조작과 �
 
 ## 개발 문서
 
+- [공개 등록 요구사항](docs/features/self-service/spec.md)
 - [요구사항](docs/features/live-ranking/spec.md)
 - [설계](docs/features/live-ranking/design.md)
 - [작업 목록](docs/features/live-ranking/tasks.md)
