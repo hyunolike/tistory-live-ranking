@@ -9,7 +9,7 @@
     "dev": "pnpm build:widget && wrangler dev --local --port 8787",
     "build:widget": "tsx scripts/build.ts",
     "build": "pnpm build:widget && wrangler deploy --dry-run --outdir dist/worker",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.worker.json --noEmit",
     "test": "tsx --test --test-concurrency=1 tests/*.test.ts",
     "test:e2e": "playwright test",
     "db:migrate": "wrangler d1 migrations apply ranking --local",

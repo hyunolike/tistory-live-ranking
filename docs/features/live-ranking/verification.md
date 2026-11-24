@@ -1,0 +1,44 @@
+# 검증 기록
+
+2026-11-24, macOS, Node.js 22.23.2, pnpm 10.17.0. 배포 전 로컬 검증이다.
+
+## 확인한 내용
+
+| 항목 | 결과 |
+| --- | --- |
+| GitHub | hyunolike/tistory-live-ranking 비공개 저장소 생성, main 기본 브랜치 |
+| 독립 설계 검토 | 공개 상태 검증과 기본 모바일웹 제약을 문서/코드에 반영 |
+| 타입 검사 | 브라우저 DOM과 Workers 타입을 분리한 두 tsconfig 통과 |
+| API/카탈로그 테스트 | 실제 Miniflare D1에서 13개 통과. 동시 중복, 기간, 제한, 공개 판정, 정리와 카탈로그 갱신 포함 |
+| 브라우저 | Chromium 11개 통과. 기간 변경, XSS 문자열, 외부 링크 제외, 오류/재시도, 중복 script, 숨긴 탭, 이전 결과 유지 |
+| 반응형 | 320/390/1440px 화면에서 가로 넘침과 포커스 확인 |
+| 빌드 | 독립 widget.js, 정적 데모, Worker dry-run 통과. 실제 배포는 수행하지 않음 |
+| 카탈로그 | 공개 sitemap의 글 78개에 대해 공개 본문/메타 확인. 제목/URL만 저장, 조회수 가져오지 않음 |
+| 로컬 D1 | 마이그레이션과 78개 카탈로그 적용 성공 |
+| 실제 HTTP | POST /api/views 202 → GET /api/rankings?window=1h에 /81의 로컬 검증 조회 1건 표시 |
+| widget.js | 200, JavaScript MIME, CORS *, 5분 캐시 확인 |
+| scheduled | 로컬 수동 호출 200. Worker의 redirect:error 미지원 오류를 테스트로 재현하고 manual로 수정 |
+
+## 수정한 회귀
+
+- 초기 custom element upgrade에서 attributeChangedCallback과 connectedCallback이 각각 첫 조회를 보내는 문제를 발견했다. mounted 상태로 초기 attribute callback을 분리한 뒤, 최초 1회 조회와 숨긴 탭 검사가 통과했다.
+- Workers의 HTMLRewriter Element 타입과 브라우저 DOM Element 타입 충돌을 발견했다. Worker와 브라우저의 타입 검사 범위를 분리했다.
+- scheduled 호출은 응답 outcome도 확인한다. 예외가 나도 Promise가 정상 완료되는 것을 성공으로 판단하지 않는다.
+
+## 화면 확인
+
+- docs/images/preview-1440.png
+- docs/images/preview-390.png
+- docs/images/preview-320.png
+
+순위와 조회수는 예시다. 공개 블로그에 실제 랭킹 위젯이 설치된 화면이 아니다.
+
+## 남은 검증
+
+- 최종 독립 코드 검토 지적 반영 후 전체 검사 재실행
+- GitHub Actions 원격 실행
+- 실제 D1, 운영 비밀키 등록, Workers 배포
+- 실제 티스토리 스킨 설치와 모바일웹 자동 연결 해제 상태 확인
+- Safari/iOS 실기기 검증
+
+전체 EGM 반복 검토 완료로 기록하지 않는다. 실행한 독립 검토와 실제 테스트 결과를 구분해 남긴다.

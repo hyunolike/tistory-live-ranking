@@ -1,0 +1,470 @@
+[
+  {
+    "id": "1",
+    "title": "[AI] mcp-python-sdk 이용해 yahoo-finance-mcp 연동하기",
+    "url": "https://hyunolike.tistory.com/1",
+    "verifiedAt": 1795525160870
+  },
+  {
+    "id": "2",
+    "title": "[AI] A2A Python SDK 이용해 간단한 Echo 통신 해보기",
+    "url": "https://hyunolike.tistory.com/2",
+    "verifiedAt": 1795525160869
+  },
+  {
+    "id": "3",
+    "title": "[CLOUD] NCloud 이용한 쿠버네티스 배포하기 (feat. NCloud 사용 후기)",
+    "url": "https://hyunolike.tistory.com/3",
+    "verifiedAt": 1795525160254
+  },
+  {
+    "id": "4",
+    "title": "[WIL (Weekly I Learned)] 1~2주차 TDD, 서버구축1 회고",
+    "url": "https://hyunolike.tistory.com/4",
+    "verifiedAt": 1795525160254
+  },
+  {
+    "id": "5",
+    "title": "[BE] 핵사고날 아키텍처로 이커머스 서버 구조 설계하기 (feat. Spring Boot, Redis, Kafka)",
+    "url": "https://hyunolike.tistory.com/5",
+    "verifiedAt": 1795525160254
+  },
+  {
+    "id": "6",
+    "title": "[AI] OpenAI, CLOVA Studio LLM을 LangGraph에서 사용하기",
+    "url": "https://hyunolike.tistory.com/6",
+    "verifiedAt": 1795525160254
+  },
+  {
+    "id": "7",
+    "title": "[AI] AI Agent 개발하기 (feat. LangGraph, CLOVA AI, MCP Server)",
+    "url": "https://hyunolike.tistory.com/7",
+    "verifiedAt": 1795525159702
+  },
+  {
+    "id": "8",
+    "title": "[BE] 커머스 도메인 - 주문/결제, 상품 조회, 포인트 충전 API 설계해보자",
+    "url": "https://hyunolike.tistory.com/8",
+    "verifiedAt": 1795525159702
+  },
+  {
+    "id": "10",
+    "title": "[WEB] 이미지 내 링크 연동하기 (feat. 반응형 UI) + 이벤트 작업(퍼블리싱)",
+    "url": "https://hyunolike.tistory.com/10",
+    "verifiedAt": 1795525159701
+  },
+  {
+    "id": "11",
+    "title": "[WEB] 중복 코드를 단 한줄의 코드로 개선",
+    "url": "https://hyunolike.tistory.com/11",
+    "verifiedAt": 1795525159696
+  },
+  {
+    "id": "12",
+    "title": "[BE] 클린 아키텍처로 백엔드 API 개발 (feat. 헥사고날, 스프링부트, Record 문법)",
+    "url": "https://hyunolike.tistory.com/12",
+    "verifiedAt": 1795525159051
+  },
+  {
+    "id": "13",
+    "title": "[AI] AI Agent를 FastAPI 호출 방식에서 LangGraph Studio 전환 (feat. Chat)",
+    "url": "https://hyunolike.tistory.com/13",
+    "verifiedAt": 1795525159051
+  },
+  {
+    "id": "14",
+    "title": "[AI] Google ADK 이용해 A2A 통신 해보기 (feat. 멀티 에이전트)",
+    "url": "https://hyunolike.tistory.com/14",
+    "verifiedAt": 1795525159051
+  },
+  {
+    "id": "15",
+    "title": "[BE] Redis 캐시 적용하기 (feat. Spring Boot)",
+    "url": "https://hyunolike.tistory.com/15",
+    "verifiedAt": 1795525159051
+  },
+  {
+    "id": "16",
+    "title": "[BE] 테스트 전용 DB 이용해 통합 테스트 해보기 (feat. Spring Boot, Testcontainers, MockMvc)",
+    "url": "https://hyunolike.tistory.com/16",
+    "verifiedAt": 1795525158473
+  },
+  {
+    "id": "17",
+    "title": "[BE] 동시성 처리 어떻게? (feat. 레디스, MSSQL) + 부하테스트 k6",
+    "url": "https://hyunolike.tistory.com/17",
+    "verifiedAt": 1795525158473
+  },
+  {
+    "id": "18",
+    "title": "[AI] 내가 만든 Agent를 A2A Server로 만들어 A2A Client와 통신해보기(feat. LangGraph)",
+    "url": "https://hyunolike.tistory.com/18",
+    "verifiedAt": 1795525158473
+  },
+  {
+    "id": "19",
+    "title": "[WEB] 이미지 내 링크 연동 기능을 자동화해보자",
+    "url": "https://hyunolike.tistory.com/19",
+    "verifiedAt": 1795525158472
+  },
+  {
+    "id": "20",
+    "title": "[BE] 기존 DB 락 한계를 분산락으로 개선시키자 (feat. Redis, Redisson, Spring AOP) + 낙관적 락, 비관적 락, 재시도 = 동시성 제어",
+    "url": "https://hyunolike.tistory.com/20",
+    "verifiedAt": 1795525157771
+  },
+  {
+    "id": "21",
+    "title": "[BE] Redis Sorted Set 자료구조 이용해 주문 랭킹 시스템 개발하기 (feat. Spring Event)",
+    "url": "https://hyunolike.tistory.com/21",
+    "verifiedAt": 1795525157771
+  },
+  {
+    "id": "22",
+    "title": "[BE] 인덱스 처리로 쿼리 성능을 높이자 (feat. MySQL)",
+    "url": "https://hyunolike.tistory.com/22",
+    "verifiedAt": 1795525157771
+  },
+  {
+    "id": "23",
+    "title": "[DB] PL/SQL 이용해 여러 테이블을 안전하게 삭제해보자",
+    "url": "https://hyunolike.tistory.com/23",
+    "verifiedAt": 1795525157771
+  },
+  {
+    "id": "24",
+    "title": "[AI] 프롬프트 엔지니어링 정리 (+ Prompt Engineering to Context Engineering)",
+    "url": "https://hyunolike.tistory.com/24",
+    "verifiedAt": 1795525157148
+  },
+  {
+    "id": "25",
+    "title": "[CS] 왜 .NET은 Oracle Client가 필요했고 Spring은 필요 없을까? (feat. 닷넷, 스프링, 스프링부트)",
+    "url": "https://hyunolike.tistory.com/25",
+    "verifiedAt": 1795525157148
+  },
+  {
+    "id": "26",
+    "title": "[BE] .NET Framework에서 ‘키 기반 동기 락(Keyed Lock)’으로 동시성 제어하기 (feat. 동시성, 닷넷, 스프링)",
+    "url": "https://hyunolike.tistory.com/26",
+    "verifiedAt": 1795525157148
+  },
+  {
+    "id": "27",
+    "title": "[BE] 동시성 문제를 어떻게 검증할까? (feat. 포스트맨, k6)",
+    "url": "https://hyunolike.tistory.com/27",
+    "verifiedAt": 1795525157148
+  },
+  {
+    "id": "28",
+    "title": "[CS] 파일을 올렸는데 서버에는 0개? 브라우저, 네트워크, 서버 경계에서 벌어진 일",
+    "url": "https://hyunolike.tistory.com/28",
+    "verifiedAt": 1795525156554
+  },
+  {
+    "id": "29",
+    "title": "[프로젝트] 이벤트 기반 보험금 청구 시스템 구축기: Phase 1 (청구 생성/조회 API) 완성 (feat. Spring Boot, Redis, Kafka, Flyway)",
+    "url": "https://hyunolike.tistory.com/29",
+    "verifiedAt": 1795525156554
+  },
+  {
+    "id": "30",
+    "title": "[AI] Claude Code 활용기: CLAUDE.MD와 Git Hooks로 AI 협업 효율 높이기",
+    "url": "https://hyunolike.tistory.com/30",
+    "verifiedAt": 1795525156554
+  },
+  {
+    "id": "31",
+    "title": "[BE] 레거시 쿠키 로그인에 OTP를 붙이면 안 되는 이유 - 인메모리 캐시로 풀어낸 2차 인증 구조 (feat. 닷넷, 스프링, 인증, 캐시)",
+    "url": "https://hyunolike.tistory.com/31",
+    "verifiedAt": 1795525156554
+  },
+  {
+    "id": "32",
+    "title": "[BE] 운영자가 관리하는 엑셀 데이터를 DB 없이 서비스한 실무 설계 (feat. 인메모리, 닷넷, 스프링)",
+    "url": "https://hyunolike.tistory.com/32",
+    "verifiedAt": 1795525155941
+  },
+  {
+    "id": "33",
+    "title": "[CS] HTTPS가 안 되던 API를 살린 방법 - Nginx SSL Proxy로 Mixed Content 해결하기 (feat. 각 환경별 SSL 인증서 동작 방식 - IIS, Linux, SSL Proxy)",
+    "url": "https://hyunolike.tistory.com/33",
+    "verifiedAt": 1795525155941
+  },
+  {
+    "id": "34",
+    "title": "[WEB] 모바일 환경의 한계를 인정하고 설계하다 (쿠키 기반 식별로 이벤트 중복을 제어한 경험)",
+    "url": "https://hyunolike.tistory.com/34",
+    "verifiedAt": 1795525155941
+  },
+  {
+    "id": "35",
+    "title": "[CS] VPN은 되는데 DB는 안 된다? NAT, 보안솔루션, IP 기준으로 파헤친 실무 장애 회고 (feat. ipconfig, netstat -a)",
+    "url": "https://hyunolike.tistory.com/35",
+    "verifiedAt": 1795525155941
+  },
+  {
+    "id": "36",
+    "title": "[프로젝트] N명의 최적 만남 장소 찾기: 지리 알고리즘 설계와 실시간 응답 개선 (feat. CompletableFuture, Semaphore)",
+    "url": "https://hyunolike.tistory.com/36",
+    "verifiedAt": 1795525155180
+  },
+  {
+    "id": "37",
+    "title": "[프로젝트] 네이버 클라우드로 인프라 구축하기 (VPC, 서브넷, 로드밸런서)",
+    "url": "https://hyunolike.tistory.com/37",
+    "verifiedAt": 1795525155180
+  },
+  {
+    "id": "38",
+    "title": "[프로젝트] save() 없이도 저장된다? JPA Cascade + Dirty Checking으로 참여자 생성 API를 3단계 리팩토링한 이야기 (feat. 퍼사드 패턴, 스프링부트)",
+    "url": "https://hyunolike.tistory.com/38",
+    "verifiedAt": 1795525155180
+  },
+  {
+    "id": "39",
+    "title": "[프로젝트] \"AWS가 이렇게 쉬웠어?\" 네이버 클라우드 경험자가 말하는 AWS EC2 배포 자동화 구축기",
+    "url": "https://hyunolike.tistory.com/39",
+    "verifiedAt": 1795525155179
+  },
+  {
+    "id": "40",
+    "title": "[데이터베이스] .NET Framework 1.1에서 Oracle 11g + 19c를 동시에 연결한 방법 (ORA-28040 해결기)",
+    "url": "https://hyunolike.tistory.com/40",
+    "verifiedAt": 1795525154527
+  },
+  {
+    "id": "41",
+    "title": "[프로젝트] 3.49s에서 0.925ms로: Google API 배치 호출과 PostGIS로 응답 시간 74% 개선 (feat. 스프링부트)",
+    "url": "https://hyunolike.tistory.com/41",
+    "verifiedAt": 1795525154527
+  },
+  {
+    "id": "42",
+    "title": "[프로젝트] Spring Boot 에서 인증 시스템 설계하기 - OTP 2FA + JWT + Redis로 보안 구현 (feat. 스프링부트, Spring Security, Redis TTL 기반 임시 저장소)",
+    "url": "https://hyunolike.tistory.com/42",
+    "verifiedAt": 1795525154527
+  },
+  {
+    "id": "43",
+    "title": "[프로젝트] 의미 없는 ERROR 로그를 없애는 법: Spring Filter로 스캐닝 봇 완전 차단 (feat. Filter, DispatcherServlet, Interceptor)",
+    "url": "https://hyunolike.tistory.com/43",
+    "verifiedAt": 1795525154527
+  },
+  {
+    "id": "44",
+    "title": "[프로젝트] Docker 디스크 100% 장애 해결기 - 블록 스토리지 추가로 무중단 마이그레이션까지 (feat. 네이버클라우드)",
+    "url": "https://hyunolike.tistory.com/44",
+    "verifiedAt": 1795525153924
+  },
+  {
+    "id": "45",
+    "title": "[프로젝트] WebSocket 대신 SSE를 선택한 이유 (feat. spring boot, SseEmitter)",
+    "url": "https://hyunolike.tistory.com/45",
+    "verifiedAt": 1795525153924
+  },
+  {
+    "id": "46",
+    "title": "[프로젝트] Docker 컨테이너에서 Spring Boot가 안 뜬다? 포트 설정의 함정 (container port mismatch)",
+    "url": "https://hyunolike.tistory.com/46",
+    "verifiedAt": 1795525153924
+  },
+  {
+    "id": "47",
+    "title": "[AI] Next.js에서 Flutter로 - 백엔드 개발자가 Hume EVI 연동 구조를 파헤친 이유",
+    "url": "https://hyunolike.tistory.com/47",
+    "verifiedAt": 1795525153924
+  },
+  {
+    "id": "50",
+    "title": "[프로젝트] 배포 환경에서 413이 Spring이 아닌 nginx에서 터지는 이유",
+    "url": "https://hyunolike.tistory.com/50",
+    "verifiedAt": 1795525153279
+  },
+  {
+    "id": "51",
+    "title": "[WEB] JS 한 줄 없이 화면 전환 구현하기 - CSS :target으로 iframe 영역 토글",
+    "url": "https://hyunolike.tistory.com/51",
+    "verifiedAt": 1795525153279
+  },
+  {
+    "id": "52",
+    "title": "[BE] STT 응답시간 19% 단축기 - 병렬화, 캐싱, Circuit Breaker로 AI 상담 API 뜯어 고치기",
+    "url": "https://hyunolike.tistory.com/52",
+    "verifiedAt": 1795525153279
+  },
+  {
+    "id": "53",
+    "title": "[BE] 운영 중 500 에러가 났다 - Spring + MySQL Deadlock 원인 추적과 트랜잭션 구조 수정기",
+    "url": "https://hyunolike.tistory.com/53",
+    "verifiedAt": 1795525153279
+  },
+  {
+    "id": "54",
+    "title": "[프로젝트] 운영 DB 장애를 막기 위한 Flyway 도입기: Spring Boot에서 스키마 변경을 배포 가능한 코드로 관리하기",
+    "url": "https://hyunolike.tistory.com/54",
+    "verifiedAt": 1795525152520
+  },
+  {
+    "id": "55",
+    "title": "[CS] 백엔드 개발자는 왜 “런타임(Runtime)“을 이해해야 할까? - Spring Boot, Node.js, Python까지 한 번에 정리하기",
+    "url": "https://hyunolike.tistory.com/55",
+    "verifiedAt": 1795525152520
+  },
+  {
+    "id": "56",
+    "title": "[CS] 프론트엔드와 백엔드의 런타임은 무엇이 다를까? - 브라우저, Node.js, JVM 그리고 Python Runtime 이해하기",
+    "url": "https://hyunolike.tistory.com/56",
+    "verifiedAt": 1795525152520
+  },
+  {
+    "id": "57",
+    "title": "[BE] 클론 한 번이면 아키텍처가 따라오는 템플릿: Kotlin + Spring Boot 4.1 + Spring Modulith 2.1 모듈러 모놀리스 스타터 제작기",
+    "url": "https://hyunolike.tistory.com/57",
+    "verifiedAt": 1795525152520
+  },
+  {
+    "id": "58",
+    "title": "[CLOUD] $100 크레딧으로 실서비스 버티기: Terraform으로 설계한 월 $20 AWS 인프라",
+    "url": "https://hyunolike.tistory.com/58",
+    "verifiedAt": 1795525151906
+  },
+  {
+    "id": "59",
+    "title": "[운영] Visual Studio 2003 웹 프로젝트는 왜 IIS 10에서 열리지 않았을까",
+    "url": "https://hyunolike.tistory.com/59",
+    "verifiedAt": 1795525151906
+  },
+  {
+    "id": "60",
+    "title": "[프로젝트] 운영 중인 서비스의 이중 DB를 PostgreSQL+PostGIS 하나로 통합한 이야기",
+    "url": "https://hyunolike.tistory.com/60",
+    "verifiedAt": 1795525151906
+  },
+  {
+    "id": "61",
+    "title": "[프로젝트] 새 계측 없이 완성한 Slack 운영 알림 — 외부 API Quota·일일 통계 설계와 구현",
+    "url": "https://hyunolike.tistory.com/61",
+    "verifiedAt": 1795525151906
+  },
+  {
+    "id": "62",
+    "title": "[운영] AL2023에서 Cron 대신 systemd Timer를 선택한 이유와 AWS S3 파일 전송 운영기",
+    "url": "https://hyunolike.tistory.com/62",
+    "verifiedAt": 1795525151283
+  },
+  {
+    "id": "63",
+    "title": "[운영] 서로 다른 Linux·Windows 로그를 하나의 운영 원칙으로: AWS S3 로그 적재 자동화 설계기",
+    "url": "https://hyunolike.tistory.com/63",
+    "verifiedAt": 1795525151283
+  },
+  {
+    "id": "64",
+    "title": "[운영] 코드만 옮기면 끝일까? SVN 커밋 이력을 보존하며 GitLab로 마이그레이션한 과정",
+    "url": "https://hyunolike.tistory.com/64",
+    "verifiedAt": 1795525151283
+  },
+  {
+    "id": "65",
+    "title": "[프로젝트] GCP 단일 VM에 블루그린 배포를 올렸다 — 무중단은 성공했지만 재부팅하면 장애가 났다",
+    "url": "https://hyunolike.tistory.com/65",
+    "verifiedAt": 1795525151283
+  },
+  {
+    "id": "66",
+    "title": "[프로젝트] PWA를 넣었더니 배포가 한 박자 늦게 보였다: 설치부터 서비스 워커 갱신까지",
+    "url": "https://hyunolike.tistory.com/66",
+    "verifiedAt": 1795525150600
+  },
+  {
+    "id": "67",
+    "title": "[운영] IIS를 멈추지 않고 RDS 점검 화면 전환하기: `app_offline.htm` 운영 적용기",
+    "url": "https://hyunolike.tistory.com/67",
+    "verifiedAt": 1795525150600
+  },
+  {
+    "id": "68",
+    "title": "[프로젝트] 배치는 실행됐지만 성공한 게 아니었다",
+    "url": "https://hyunolike.tistory.com/68",
+    "verifiedAt": 1795525150599
+  },
+  {
+    "id": "69",
+    "title": "[BE] 레거시 SOAP를 Spring Boot로 옮기며 배운 것들 — Apache CXF, JAX-WS 그리고 ‘계약’과 ‘비즈니스’의 분리",
+    "url": "https://hyunolike.tistory.com/69",
+    "verifiedAt": 1795525150599
+  },
+  {
+    "id": "70",
+    "title": "[프로젝트] 점검 페이지는 장애 난 시스템 밖에 있어야 한다",
+    "url": "https://hyunolike.tistory.com/70",
+    "verifiedAt": 1795525149795
+  },
+  {
+    "id": "71",
+    "title": "[WEB] Vue의 $nextTick()만 기다렸는데 이미지 슬라이더가 깨진 이유",
+    "url": "https://hyunolike.tistory.com/71",
+    "verifiedAt": 1795525149794
+  },
+  {
+    "id": "72",
+    "title": "[운영] 레거시 .NET 시스템에 SSO 적용하기 — AWS ALB OIDC로 인증 책임 분리하기",
+    "url": "https://hyunolike.tistory.com/72",
+    "verifiedAt": 1795525149794
+  },
+  {
+    "id": "73",
+    "title": "[AI][NVIDIA] LLM이 결정하지 않는 에이전트 1편: 항공 결항 재배정에서 계산과 승인을 분리한 이유",
+    "url": "https://hyunolike.tistory.com/73",
+    "verifiedAt": 1795525149794
+  },
+  {
+    "id": "74",
+    "title": "[AI][NVIDIA] LLM이 결정하지 않는 에이전트 2편: OpenShell 격리와 OpenClaw MCP 연동",
+    "url": "https://hyunolike.tistory.com/74",
+    "verifiedAt": 1795525149193
+  },
+  {
+    "id": "75",
+    "title": "[WEB] 모바일에서 PC 배너가 먼저 보이는 이유: JavaScript 이미지 교체를 반응형 로딩으로 개선하기",
+    "url": "https://hyunolike.tistory.com/75",
+    "verifiedAt": 1795525149193
+  },
+  {
+    "id": "76",
+    "title": "[WEB] 이미지 버튼에서 여행 취향 팝업까지: 이벤트 위임으로 클릭 흐름 연결하기",
+    "url": "https://hyunolike.tistory.com/76",
+    "verifiedAt": 1795525149193
+  },
+  {
+    "id": "77",
+    "title": "[WEB] 아이폰에서 멈춘 지도 애니메이션, 기종 문제가 아닌 코드 분기 문제였다",
+    "url": "https://hyunolike.tistory.com/77",
+    "verifiedAt": 1795525149192
+  },
+  {
+    "id": "78",
+    "title": "[AI] 질문하면 내 블로그 글로 답하는 챗봇을 만들었다",
+    "url": "https://hyunolike.tistory.com/78",
+    "verifiedAt": 1795525148370
+  },
+  {
+    "id": "79",
+    "title": "[프로젝트] Cloud Run이 잠든 동안 흰 화면 대신 로딩 화면을 띄웠다",
+    "url": "https://hyunolike.tistory.com/79",
+    "verifiedAt": 1795525148369
+  },
+  {
+    "id": "80",
+    "title": "[AI][컨퍼런스 후기] NVIDIA AI Day Seoul 2026, 같은 원칙으로 만들었는데 왜 FlyGate가 1등이었을까",
+    "url": "https://hyunolike.tistory.com/80",
+    "verifiedAt": 1795525148369
+  },
+  {
+    "id": "81",
+    "title": "[AI] HTTP 200인데 챗봇은 답하지 않았다",
+    "url": "https://hyunolike.tistory.com/81",
+    "verifiedAt": 1795525148367
+  }
+]

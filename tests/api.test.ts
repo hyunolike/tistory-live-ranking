@@ -11,7 +11,14 @@ before(async () => {
   const bundled = await build({ entryPoints: ['src/worker/index.ts'], bundle: true, format: 'esm', write: false });
   mf = new Miniflare({
     modules: true, script: bundled.outputFiles[0].text, compatibilityDate: '2026-07-30',
-    d1Databases: ['DB'], bindings: {
+    d1Databases: ['DB'],
+    outboundService: async (request: Request) => {
+      const path = new URL(request.url).pathname;
+      if(path === '/sitemap.xml') return new Response('<urlset><loc>https://hyunolike.tistory.com/1</loc><loc>https://hyunolike.tistory.com/2</loc><loc>https://hyunolike.tistory.com/4</loc></urlset>');
+      const id=path.slice(1);
+      return new Response(`<meta property="og:type" content="article"><meta property="og:title" content="검증한 글 ${id}"><link rel="canonical" href="https://hyunolike.tistory.com/${id}"><div id="article-view">본문</div>`);
+    },
+    bindings: {
       BLOG_ORIGIN: 'https://hyunolike.tistory.com', ENVIRONMENT: 'production',
       DEDUP_SECRET: 'test-only-secret-long-enough-for-hmac-key'
     }
@@ -109,5 +116,22 @@ test('catalog entries unverified for 24 hours stop accepting views and disappear
   assert.equal((await collect()).status, 404);
   const result = await (await mf.dispatchFetch('https://ranking.test/api/rankings')).json() as any;
   assert.deepEqual(result.items, []);
+});
+
+test('scheduled maintenance expires old data and verifies new public posts', async () => {
+  const old=Date.now()-8*24*3600_000;
+  await db.prepare('INSERT INTO views(post_id,viewed_at) VALUES (?,?)').bind('1',old).run();
+  await db.prepare('INSERT INTO dedup(post_id,fingerprint,last_seen) VALUES (?,?,?)').bind('1','old',old).run();
+  await db.prepare('INSERT INTO rate_limits(fingerprint,minute,hits) VALUES (?,?,1)').bind('old',Math.floor(old/60_000)).run();
+  const worker=await mf.getWorker();
+  const result=await worker.scheduled({scheduledTime:new Date(),cron:'15 * * * *'});
+  assert.equal(result.outcome,'ok');
+  assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM views').first<{n:number}>())?.n,0);
+  assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM dedup').first<{n:number}>())?.n,0);
+  assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM rate_limits').first<{n:number}>())?.n,0);
+  const post=await db.prepare("SELECT title,active,verified_at FROM posts WHERE id='4'").first<{title:string,active:number,verified_at:number}>();
+  assert.equal(post?.title,'검증한 글 4');
+  assert.equal(post?.active,1);
+  assert.ok(post!.verified_at>old);
 });
 
