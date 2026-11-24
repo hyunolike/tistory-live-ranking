@@ -66,10 +66,10 @@ pnpm test:e2e
 3. `pnpm exec wrangler secret put DEDUP_SECRET`에 충분히 긴 임의의 비밀값을 등록합니다. `.dev.vars.example`의 값을 운영에 재사용하지 마세요.
 4. `pnpm exec wrangler d1 migrations apply ranking --remote`를 실행합니다.
 5. `pnpm catalog:sync` 후 `pnpm exec wrangler d1 execute ranking --remote --file data/catalog.sql`로 공개 글 카탈로그를 반영합니다.
-6. 검증을 통과한 뒤 `pnpm deploy`를 실행합니다. 개발 모드나 가짜 DB ID가 남아 있으면 이 스크립트는 중단합니다.
+6. 검증을 통과한 뒤 `pnpm run deploy`를 실행합니다. 개발 모드나 가짜 DB ID가 남아 있으면 이 스크립트는 중단합니다. pnpm의 예약 명령인 `pnpm deploy`와 구분합니다.
 7. 공개 `/health`, 랭킹 JSON, JavaScript MIME와 CORS를 확인한 뒤 설치합니다. 운영에서 비밀키가 누락되면 수집 API는 503을 반환합니다.
 
-GitHub Actions는 검증만 수행하며 배포하지 않습니다. 무료 제공량과 초과 요금은 배포 시점의 Cloudflare 계정에서 확인하세요.
+GitHub Actions는 검증만 수행하며 배포하지 않습니다. 현재 계정의 Actions 예산 제한으로 원격 작업은 시작되지 않았고, 로컬 검증만 완료했습니다. 무료 제공량과 초과 요금은 배포 시점의 Cloudflare 계정에서 확인하세요.
 
 ## 티스토리 설치
 
@@ -103,5 +103,6 @@ Origin 검사는 인증이 아니며 공개 수집 API의 고의적 조작과 �
 - [설계](docs/features/live-ranking/design.md)
 - [작업 목록](docs/features/live-ranking/tasks.md)
 - [독립 설계 검토](docs/features/live-ranking/reviews/2026-11-24-design-check.md)
+- [독립 코드 검토와 수정](docs/features/live-ranking/reviews/2026-11-24-code-review.md)
 - [검증 기록](docs/features/live-ranking/verification.md)
 

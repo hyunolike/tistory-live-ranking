@@ -8,6 +8,6 @@
 <main class="inner"><div class="ranking-placement"><blog-live-ranking demo></blog-live-ranking></div>
 <div class="below"><section class="recent"><h2>최근 글</h2><article><span>AI</span><h3>HTTP 200인데 챗봇은 답하지 않았다</h3><p>응답 코드 뒤에 숨은 스트리밍 오류를 찾아가는 과정</p><time>2026.11.17</time></article><article><span>프로젝트</span><h3>Cloud Run이 잠든 동안 흰 화면만 보였다</h3><p>서버가 준비되는 시간을 사용자에게 보여주는 방법</p><time>2026.11.08</time></article></section><aside><p class="aside-label">사이드바에서도</p><h2>같은 위젯, 작은 너비</h2><p>위젯은 넣은 영역의 너비에 맞춰 정렬됩니다. 기존 사이드바의 인기글 영역에도 사용할 수 있습니다.</p><div class="mini-rule"></div><p class="mono">TypeScript / Workers / D1</p></aside></div></main>
 <footer class="demo-footer inner">이 화면은 설치 전 디자인 확인용입니다. 실제 티스토리 스킨은 변경하지 않았습니다.</footer>
-<script>if(new URLSearchParams(location.search).has('live'))document.querySelector('blog-live-ranking').removeAttribute('demo');</script>
+<script>if(new URLSearchParams(location.search).has('live')){document.querySelector('blog-live-ranking').removeAttribute('demo');document.querySelector('.preview-note > span').textContent='실제 API 결과';document.querySelector('.preview-note > p').textContent='현재 연결한 API의 통계입니다. 이 화면에서는 조회를 수집하지 않습니다.';}</script>
 <script src="/widget.js" data-track="false" defer></script>
 </body></html>

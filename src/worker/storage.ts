@@ -1,16 +1,19 @@
 import type { RankingResponse, RankingWindow } from '../shared/contracts.ts';
+import type { D1Database } from '@cloudflare/workers-types';
 
 export const CATALOG_TTL = 24 * 3600_000;
 
-export async function recordView(db: D1Database, postId: string, fingerprint: string, now: number): Promise<void> {
+export async function recordView(db: D1Database, postId: string, fingerprint: string, now: number): Promise<boolean> {
   // D1 batch is a transaction. changes() refers to the preceding conditional UPSERT.
-  await db.batch([
-    db.prepare(`INSERT INTO dedup(post_id,fingerprint,last_seen) VALUES (?,?,?)
+  const result=await db.batch([
+    db.prepare('SELECT id FROM posts WHERE id=? AND active=1 AND verified_at>=?').bind(postId,now-CATALOG_TTL),
+    db.prepare(`INSERT INTO dedup(post_id,fingerprint,last_seen) SELECT id,?,? FROM posts WHERE id=? AND active=1 AND verified_at>=?
       ON CONFLICT(post_id,fingerprint) DO UPDATE SET last_seen=excluded.last_seen
-      WHERE dedup.last_seen <= ?`).bind(postId,fingerprint,now,now-30*60_000),
+      WHERE dedup.last_seen <= ?`).bind(fingerprint,now,postId,now-CATALOG_TTL,now-30*60_000),
     db.prepare('INSERT INTO views(post_id,viewed_at) SELECT ?,? WHERE changes()=1').bind(postId,now),
     db.prepare("INSERT OR IGNORE INTO metadata(key,value) SELECT 'collected_since',? WHERE EXISTS(SELECT 1 FROM views)").bind(String(now))
   ]);
+  return result[0].results.length>0;
 }
 
 export async function ranking(db: D1Database, window: RankingWindow, now: number): Promise<RankingResponse> {

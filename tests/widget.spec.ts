@@ -26,10 +26,26 @@ test('demo identifies sample data and makes no analytics requests', async ({page
 test('live ranking changes time range and links to the original post', async ({page}) => {
   await api(page);
   await page.goto('/?live=1');
+  await expect(page.locator('.preview-note')).toContainText('실제 API 결과');
   await expect(page.getByRole('link',{name:/HTTP 200인데/})).toHaveAttribute('href','https://hyunolike.tistory.com/81');
   await page.getByRole('button',{name:'최근 1시간',exact:true}).click();
   await expect(page.getByRole('button',{name:'최근 1시간',exact:true})).toHaveAttribute('aria-pressed','true');
   await expect(page.locator('blog-live-ranking').getByText('28',{exact:true})).toBeVisible();
+});
+
+test('scheduled refresh and failure retain keyboard focus on the same post',async({page})=>{
+  await page.clock.install();
+  let fail=false;
+  await page.route('**/api/rankings?*',r=>r.fulfill(fail?{status:503,json:{error:'down'}}:{json:data()}));
+  await page.goto('/?live=1');
+  const link=page.getByRole('link',{name:/HTTP 200인데/});
+  await link.focus();
+  await page.clock.fastForward(60_000);
+  await expect(link).toBeFocused();
+  fail=true;
+  await page.clock.fastForward(60_000);
+  await expect(page.getByText('갱신하지 못했습니다. 이전 결과를 표시합니다.')).toBeVisible();
+  await expect(link).toBeFocused();
 });
 
 test('empty and failure states offer retry without fabricating rankings', async ({page}) => {

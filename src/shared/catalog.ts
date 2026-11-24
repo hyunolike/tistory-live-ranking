@@ -1,4 +1,25 @@
 import { BLOG_ORIGIN, postIdFromUrl } from './contracts.ts';
+import { Parser } from 'htmlparser2';
+
+export async function readLimited(response: Response, max: number): Promise<string> {
+  if(Number(response.headers.get('Content-Length'))>max){await response.body?.cancel();throw new Error('Response exceeds byte limit');}
+  const reader=response.body?.getReader();
+  if(!reader)return '';
+  const decoder=new TextDecoder();
+  let size=0;
+  const parts:string[]=[];
+  try{
+    for(;;){
+      const {done,value}=await reader.read();
+      if(done)break;
+      size+=value.byteLength;
+      if(size>max){await reader.cancel();throw new Error('Response exceeds byte limit');}
+      parts.push(decoder.decode(value,{stream:true}));
+    }
+    parts.push(decoder.decode());
+    return parts.join('');
+  }finally{reader.releaseLock();}
+}
 
 export interface CatalogPost { id: string; title: string; url: string; verifiedAt: number }
 
@@ -12,18 +33,25 @@ function decode(value: string): string {
   });
 }
 
-function attrs(tag: string): Record<string,string> {
-  return Object.fromEntries([...tag.matchAll(/([\w:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g)].map(m => [m[1].toLowerCase(),decode(m[2] ?? m[3])]));
-}
-
 export function parsePost(html: string, id: string, now: number): CatalogPost | null {
-  const tags = [...html.matchAll(/<(?:meta|link|div|article)\b[^>]*>/gi)].map(m => ({tag:m[0], a:attrs(m[0])}));
-  const meta = (property: string) => tags.find(t => t.a.property === property)?.a.content;
-  const canonical = tags.find(t => t.a.rel === 'canonical')?.a.href;
-  const protectedPage = tags.some(t => /(?:^|\s)(?:area-protected|article-header-protected)(?:\s|$)/.test(t.a.class ?? ''));
-  const publicBody = tags.some(t => t.a.id === 'article-view');
-  const title = meta('og:title')?.trim();
-  if (protectedPage || !publicBody || meta('og:type') !== 'article' || !canonical || postIdFromUrl(canonical) !== id || !title || title.length > 300) return null;
+  let inHead=true, inertDepth=0, protectedPage=false, publicBody=false;
+  let canonical:string|undefined, title:string|undefined, type:string|undefined;
+  const inertStack:boolean[]=[];
+  const headTags=new Set(['html','head','meta','link','title','base','script','style','template','noscript']);
+  const parser=new Parser({
+    onopentag(name,a){
+      const inert=inertDepth>0||['script','style','template','noscript'].includes(name);
+      inertStack.push(inert);if(inert){inertDepth++;return;}
+      if(name==='body'||!headTags.has(name))inHead=false;
+      if(/(?:^|\s)(?:area-protected|article-header-protected)(?:\s|$)/.test(a.class??''))protectedPage=true;
+      if(name==='meta'&&inHead){if(a.property==='og:title')title??=a.content?.trim();if(a.property==='og:type')type??=a.content;}
+      if(name==='link'&&inHead&&a.rel==='canonical')canonical??=a.href;
+      if(!inHead&&a.id==='article-view')publicBody=true;
+    },
+    onclosetag(name){if(inertStack.pop())inertDepth--;if(name==='head')inHead=false;}
+  },{decodeEntities:true});
+  parser.end(html);
+  if (protectedPage || !publicBody || type !== 'article' || !canonical || postIdFromUrl(canonical) !== id || !title || title.length > 300) return null;
   return { id, title, url:`${BLOG_ORIGIN}/${id}`, verifiedAt:now };
 }
 
@@ -38,7 +66,6 @@ export async function fetchPost(id: string, now: number): Promise<CatalogPost | 
   const response = await fetch(`${BLOG_ORIGIN}/${id}`, { redirect:'manual', signal:AbortSignal.timeout(10_000) });
   if (response.status === 404 || response.status === 410) return null;
   if (!response.ok) throw new Error(`Post ${id}: HTTP ${response.status}`);
-  const html = await response.text();
-  if (html.length > 2_000_000) throw new Error('Post HTML exceeds size limit');
+  const html = await readLimited(response,2*1024*1024);
   return parsePost(html, id, now);
 }

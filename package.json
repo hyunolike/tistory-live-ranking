@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.17.0",
-  "engines": { "node": ">=22.12.0" },
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "pnpm build:widget && wrangler dev --local --port 8787",
     "build:widget": "tsx scripts/build.ts",
@@ -26,5 +28,8 @@
     "tsx": "4.23.15",
     "typescript": "5.9.3",
     "wrangler": "4.167.0"
+  },
+  "dependencies": {
+    "htmlparser2": "12.0.0"
   }
 }

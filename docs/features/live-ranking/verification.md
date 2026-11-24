@@ -9,8 +9,8 @@
 | GitHub | hyunolike/tistory-live-ranking 비공개 저장소 생성, main 기본 브랜치 |
 | 독립 설계 검토 | 공개 상태 검증과 기본 모바일웹 제약을 문서/코드에 반영 |
 | 타입 검사 | 브라우저 DOM과 Workers 타입을 분리한 두 tsconfig 통과 |
-| API/카탈로그 테스트 | 실제 Miniflare D1에서 13개 통과. 동시 중복, 기간, 제한, 공개 판정, 정리와 카탈로그 갱신 포함 |
-| 브라우저 | Chromium 11개 통과. 기간 변경, XSS 문자열, 외부 링크 제외, 오류/재시도, 중복 script, 숨긴 탭, 이전 결과 유지 |
+| API/카탈로그 테스트 | 실제 Miniflare D1에서 18개 통과. 동시 중복, 기간, 제한, 공개 판정, 정리와 카탈로그 갱신 포함 |
+| 브라우저 | Chromium 12개 통과. 기간 변경, XSS 문자열, 외부 링크 제외, 오류/재시도, 중복 script, 숨긴 탭, 이전 결과 유지 |
 | 반응형 | 320/390/1440px 화면에서 가로 넘침과 포커스 확인 |
 | 빌드 | 독립 widget.js, 정적 데모, Worker dry-run 통과. 실제 배포는 수행하지 않음 |
 | 카탈로그 | 공개 sitemap의 글 78개에 대해 공개 본문/메타 확인. 제목/URL만 저장, 조회수 가져오지 않음 |
@@ -35,10 +35,14 @@
 
 ## 남은 검증
 
-- 최종 독립 코드 검토 지적 반영 후 전체 검사 재실행
-- GitHub Actions 원격 실행
+- 독립 코드 검토 중요 지적 수정 후 pnpm test(18/18), pnpm test:e2e(12/12), pnpm typecheck, pnpm build 통과
+- GitHub Actions: [실행 기록](https://github.com/hyunolike/tistory-live-ranking/actions/runs/45400351935)은 테스트 실패가 아니라 계정 Actions 예산 제한으로 시작 전 종료됐다. check-run annotation: "The job was not started because an Actions budget is preventing further use." 예산 제한 해제 후 원격 실행 필요
 - 실제 D1, 운영 비밀키 등록, Workers 배포
 - 실제 티스토리 스킨 설치와 모바일웹 자동 연결 해제 상태 확인
 - Safari/iOS 실기기 검증
 
 전체 EGM 반복 검토 완료로 기록하지 않는다. 실행한 독립 검토와 실제 테스트 결과를 구분해 남긴다.
+
+## 최종 검토 조치
+
+[독립 코드 검토](reviews/2026-11-24-code-review.md)의 중요 항목을 수정했다. 0002 카탈로그 시도 시각 마이그레이션과 새 SQL을 로컬 D1에 적용했고, 기존 검증 조회가 랭킹에 유지되는 것을 다시 확인했다. 생성한 catalog.sql에 명시적 BEGIN/COMMIT이 없다. pnpm run deploy는 development 설정에서 실제 배포 전에 중단되는 것을 확인했다. 스킨 관리자 이름 주석과 이미 숨겨진 탭의 최초 읽기 요청 1회는 경미한 후속 항목으로 남겼다.

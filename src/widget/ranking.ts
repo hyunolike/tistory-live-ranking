@@ -99,6 +99,8 @@ export class BlogLiveRanking extends HTMLElement {
   }
 
   private render(data:RankingResponse){
+    const focused=this.root.activeElement;
+    const focusedUrl=focused instanceof HTMLAnchorElement?focused.href:null;
     this.list.replaceChildren();
     this.list.hidden=!data.items.length;
     this.status.classList.remove('compact');
@@ -117,5 +119,6 @@ export class BlogLiveRanking extends HTMLElement {
       li.append(rank,link,views);this.list.append(li);
     }
     this.stamp.textContent=this.hasAttribute('demo')?'실제 방문 통계가 아닙니다.':`${new Date(data.generatedAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',hour12:false})} 갱신 / 60초마다`;
+    if(focusedUrl)this.root.querySelectorAll<HTMLAnchorElement>('.post-link').forEach(link=>{if(link.href===focusedUrl)link.focus({preventScroll:true});});
   }
 }

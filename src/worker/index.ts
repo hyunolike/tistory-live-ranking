@@ -1,4 +1,4 @@
-import { ranking, recordView, cleanup, CATALOG_TTL } from './storage.ts';
+import { ranking, recordView, cleanup } from './storage.ts';
 import { refreshCatalog } from './catalog.ts';
 
 interface Env {
@@ -79,9 +79,7 @@ export default {
         const rate = await env.DB.prepare(`INSERT INTO rate_limits(fingerprint,minute,hits) VALUES (?,?,1)
           ON CONFLICT(fingerprint,minute) DO UPDATE SET hits=hits+1 RETURNING hits`).bind(hash,minute).first<{hits:number}>();
         if (!rate || rate.hits > 30) return json({error:'Too many requests'},429,{...writeCors,'Retry-After':String(60-Math.floor(now/1000)%60)});
-        const post = await env.DB.prepare('SELECT id FROM posts WHERE id=? AND active=1 AND verified_at>=?').bind(postId,now-CATALOG_TTL).first();
-        if (!post) throw new HttpError(404,'Post not found');
-        await recordView(env.DB,postId,hash,now);
+        if (!await recordView(env.DB,postId,hash,now)) throw new HttpError(404,'Post not found');
         return json({accepted:true},202,writeCors);
       }
       if (url.pathname === '/api/rankings') {

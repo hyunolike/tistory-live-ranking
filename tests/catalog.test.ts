@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parsePost, sitemapIds } from '../src/shared/catalog.ts';
+import { parsePost, sitemapIds, readLimited } from '../src/shared/catalog.ts';
 import { postIdFromUrl } from '../src/shared/contracts.ts';
 
 test('numeric and mobile paths normalize without admitting external links', () => {
@@ -24,4 +24,19 @@ test('sitemap deduplicates desktop/mobile IDs and rejects non-urlset documents',
   assert.deepEqual(sitemapIds(xml), ['81']);
   assert.throws(() => sitemapIds('<html>Error</html>'));
   assert.throws(() => sitemapIds('<urlset></urlset>'));
+});
+
+test('inert markup cannot prove a public body or spoof head metadata',()=>{
+  const withoutBody=publicHtml.replace('<div id="article-view">실제 본문</div>','');
+  for(const extra of ['<!-- <div id="article-view">본문</div> -->','<script>const html=\'<div id="article-view">본문</div>\'</script>','<template><div id="article-view">본문</div></template>']){
+    assert.equal(parsePost(withoutBody+extra,'81',1000),null);
+  }
+  assert.equal(parsePost(publicHtml+'<section class="area-protected">잠김</section>','81',1000),null);
+  assert.equal(parsePost('<body>'+publicHtml+'</body>','81',1000),null);
+});
+
+test('upstream limits count streamed bytes rather than decoded characters',async()=>{
+  const response=new Response(new ReadableStream({start(controller){controller.enqueue(new TextEncoder().encode('가나'));controller.enqueue(new TextEncoder().encode('다라'));controller.close();}}));
+  await assert.rejects(()=>readLimited(response,10),/limit/i);
+  assert.equal(await readLimited(new Response('가'),3),'가');
 });

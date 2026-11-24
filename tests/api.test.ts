@@ -3,9 +3,13 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { build } from 'esbuild';
 import { Miniflare } from 'miniflare';
+import { recordView } from '../src/worker/storage.ts';
+import { catalogSql } from '../scripts/catalog-sql.ts';
 
 let mf: Miniflare;
 let db: Awaited<ReturnType<Miniflare['getD1Database']>>;
+let catalogIds=['1','2','4'];
+let failedPosts=new Set<string>();
 
 before(async () => {
   const bundled = await build({ entryPoints: ['src/worker/index.ts'], bundle: true, format: 'esm', write: false });
@@ -14,8 +18,9 @@ before(async () => {
     d1Databases: ['DB'],
     outboundService: async (request: Request) => {
       const path = new URL(request.url).pathname;
-      if(path === '/sitemap.xml') return new Response('<urlset><loc>https://hyunolike.tistory.com/1</loc><loc>https://hyunolike.tistory.com/2</loc><loc>https://hyunolike.tistory.com/4</loc></urlset>');
+      if(path === '/sitemap.xml') return new Response(`<urlset>${catalogIds.map(id=>`<loc>https://hyunolike.tistory.com/${id}</loc>`).join('')}</urlset>`);
       const id=path.slice(1);
+      if(failedPosts.has(id))return new Response('Unavailable',{status:503});
       return new Response(`<meta property="og:type" content="article"><meta property="og:title" content="검증한 글 ${id}"><link rel="canonical" href="https://hyunolike.tistory.com/${id}"><div id="article-view">본문</div>`);
     },
     bindings: {
@@ -29,9 +34,11 @@ before(async () => {
 after(async () => { await mf?.dispose(); });
 
 beforeEach(async () => {
+  catalogIds=['1','2','4']; failedPosts=new Set();
   const schema = await readFile('migrations/0001_initial.sql', 'utf8');
   await db.exec('DROP TABLE IF EXISTS views; DROP TABLE IF EXISTS dedup; DROP TABLE IF EXISTS rate_limits; DROP TABLE IF EXISTS metadata; DROP TABLE IF EXISTS posts;');
   await db.exec(schema.replace(/\n/g, ' '));
+  await db.exec((await readFile('migrations/0002_catalog_attempts.sql','utf8')).replace(/\n/g,' '));
   await db.prepare("INSERT INTO posts (id, title, url, active) VALUES ('1','첫 번째 글','https://hyunolike.tistory.com/1',1),('2','두 번째 글','https://hyunolike.tistory.com/2',1),('3','삭제된 글','https://hyunolike.tistory.com/3',0)").run();
   await db.prepare('UPDATE posts SET verified_at = ?').bind(Date.now()).run();
 });
@@ -133,5 +140,30 @@ test('scheduled maintenance expires old data and verifies new public posts', asy
   assert.equal(post?.title,'검증한 글 4');
   assert.equal(post?.active,1);
   assert.ok(post!.verified_at>old);
+});
+
+test('storage rejects an article deactivated after an earlier eligibility check',async()=>{
+  await db.prepare("UPDATE posts SET active=0 WHERE id='1'").run();
+  const accepted=await recordView(db as any,'1','fingerprint',Date.now());
+  assert.equal(accepted,false);
+  assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM views').first<{n:number}>())?.n,0);
+});
+
+test('persistently failing posts do not starve healthy catalog entries',async()=>{
+  catalogIds=Array.from({length:12},(_,i)=>String(i+1));
+  failedPosts=new Set(catalogIds.slice(2));
+  for(const id of catalogIds)await db.prepare('INSERT OR REPLACE INTO posts(id,title,url,active,verified_at) VALUES (?,?,?,0,0)').bind(id,`글 ${id}`,`https://hyunolike.tistory.com/${id}`).run();
+  const worker=await mf.getWorker();
+  await worker.scheduled({scheduledTime:new Date(),cron:'15 * * * *'});
+  await worker.scheduled({scheduledTime:new Date(),cron:'15 * * * *'});
+  const healthy=await db.prepare("SELECT id FROM posts WHERE id IN ('1','2') AND verified_at>0 AND active=1 ORDER BY id").all<{id:string}>();
+  assert.deepEqual(healthy.results.map(p=>p.id),['1','2']);
+});
+
+test('generated catalog import preserves quoted titles and deactivates missing posts',async()=>{
+  const statements=catalogSql([{id:'4',title:"개발자의 '계약'",url:'https://hyunolike.tistory.com/4',verifiedAt:Date.now()}]).split('\n').filter(line=>line.trim()&&!line.startsWith('--'));
+  await db.batch(statements.map(sql=>db.prepare(sql)));
+  assert.equal((await db.prepare("SELECT title FROM posts WHERE id='4'").first<{title:string}>())?.title,"개발자의 '계약'");
+  assert.equal((await db.prepare("SELECT active FROM posts WHERE id='1'").first<{active:number}>())?.active,0);
 });
 
