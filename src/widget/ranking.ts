@@ -1,9 +1,9 @@
 import css from './ranking.css';
-import { BLOG_ORIGIN, postIdFromUrl, type RankingResponse, type RankingWindow } from '../shared/contracts.ts';
+import { BLOG_ORIGIN, normalizeBlogOrigin, postIdFromUrl, type RankingResponse, type RankingWindow } from '../shared/contracts.ts';
 import { demoRanking } from './demo-data.ts';
 
 export class BlogLiveRanking extends HTMLElement {
-  static observedAttributes=['api-base','demo'];
+  static observedAttributes=['api-base','demo','site','blog-origin'];
   private selected:RankingWindow='24h';
   private generation=0;
   private request?:AbortController;
@@ -150,11 +150,15 @@ export class BlogLiveRanking extends HTMLElement {
       if(!['http:','https:'].includes(base.protocol))throw new Error('Invalid API origin');
       const endpoint=new URL('/api/rankings',base);
       endpoint.searchParams.set('window',this.selected);
+      const site=this.getAttribute('site');
+      const blogOrigin=site?normalizeBlogOrigin(this.getAttribute('blog-origin')):BLOG_ORIGIN;
+      if(site&&!blogOrigin)throw new Error('Blog origin is required');
+      if(site)endpoint.searchParams.set('site',site);
       const response=await fetch(endpoint,{signal:controller.signal,credentials:'omit'});
       if(!response.ok)throw new Error('Ranking request failed');
       const value=await response.json() as RankingResponse;
-      if(value.window!==this.selected||value.metric!=='deduplicatedViews'||!Array.isArray(value.items)||!Number.isFinite(Date.parse(value.generatedAt)))throw new Error('Invalid ranking response');
-      value.items=value.items.filter(item=>typeof item.title==='string'&&item.title.length<=300&&postIdFromUrl(item.url)===item.postId&&new URL(item.url).origin===BLOG_ORIGIN&&Number.isInteger(item.views)&&item.views>0).slice(0,5);
+      if((site&&value.blogOrigin!==blogOrigin)||value.window!==this.selected||value.metric!=='deduplicatedViews'||!Array.isArray(value.items)||!Number.isFinite(Date.parse(value.generatedAt)))throw new Error('Invalid ranking response');
+      value.items=value.items.filter(item=>typeof item.title==='string'&&item.title.length<=300&&postIdFromUrl(item.url,blogOrigin!)===item.postId&&new URL(item.url).origin===blogOrigin&&Number.isInteger(item.views)&&item.views>0).slice(0,5);
       if(generation!==this.generation||!this.isConnected)return;
       this.previous.set(this.selected,value);
       this.render(value);

@@ -36,9 +36,10 @@ after(async () => { await mf?.dispose(); });
 beforeEach(async () => {
   catalogIds=['1','2','4']; failedPosts=new Set();
   const schema = await readFile('migrations/0001_initial.sql', 'utf8');
-  await db.exec('DROP TABLE IF EXISTS views; DROP TABLE IF EXISTS dedup; DROP TABLE IF EXISTS rate_limits; DROP TABLE IF EXISTS metadata; DROP TABLE IF EXISTS posts;');
+  await db.exec('DROP TABLE IF EXISTS site_views; DROP TABLE IF EXISTS site_dedup; DROP TABLE IF EXISTS site_posts; DROP TABLE IF EXISTS site_limits; DROP TABLE IF EXISTS sites; DROP TABLE IF EXISTS views; DROP TABLE IF EXISTS dedup; DROP TABLE IF EXISTS rate_limits; DROP TABLE IF EXISTS metadata; DROP TABLE IF EXISTS posts;');
   await db.exec(schema.replace(/\n/g, ' '));
   await db.exec((await readFile('migrations/0002_catalog_attempts.sql','utf8')).replace(/\n/g,' '));
+  await db.exec((await readFile('migrations/0003_sites.sql','utf8')).replace(/\n/g,' '));
   await db.prepare("INSERT INTO posts (id, title, url, active) VALUES ('1','첫 번째 글','https://hyunolike.tistory.com/1',1),('2','두 번째 글','https://hyunolike.tistory.com/2',1),('3','삭제된 글','https://hyunolike.tistory.com/3',0)").run();
   await db.prepare('UPDATE posts SET verified_at = ?').bind(Date.now()).run();
 });

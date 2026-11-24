@@ -6,7 +6,7 @@ import { postIdFromUrl } from '../src/shared/contracts.ts';
 test('numeric and mobile paths normalize without admitting external links', () => {
   assert.equal(postIdFromUrl('https://hyunolike.tistory.com/m/81?from=x'), '81');
   assert.equal(postIdFromUrl('https://hyunolike.tistory.com/81/'), '81');
-  for (const url of ['https://evil.test/81','https://hyunolike.tistory.com/category/81','https://hyunolike.tistory.com/entry/test','https://hyunolike.tistory.com/0']) assert.equal(postIdFromUrl(url), null);
+  for (const url of ['https://evil.test/81','https://hyunolike.tistory.com/category/81','https://hyunolike.tistory.com/0']) assert.equal(postIdFromUrl(url), null);
 });
 
 const publicHtml = '<meta property="og:type" content="article"><meta content="A &amp; B" property="og:title"><link href="https://hyunolike.tistory.com/81" rel="canonical"><div id="article-view">실제 본문</div>';
@@ -45,4 +45,14 @@ test('upstream limits count streamed bytes rather than decoded characters',async
 test('Tistory explicit head remains recognizable around an embedded custom widget',()=>{
   const html='<html><head><meta property="og:type" content="article"><meta property="og:title" content="공개 글"><script type="module" src="https://example.com/widget.js"></script><visitor-village count="10"></visitor-village><link rel="canonical" href="https://hyunolike.tistory.com/81"></head><body><div id="article-view">공개 본문</div></body></html>';
   assert.deepEqual(parsePost(html,'81',1000),{id:'81',title:'공개 글',url:'https://hyunolike.tistory.com/81',verifiedAt:1000});
+});
+
+
+test('site-specific origins and string addresses use generic public bodies without accepting protected forms',()=>{
+ const origin='https://other-blog.tistory.com';
+ const html='<meta property="og:type" content="article"><meta property="og:title" content="제목"><link rel="canonical" href="'+origin+'/entry/hello"><div class="contents_style">본문</div>';
+ assert.equal(postIdFromUrl(origin+'/entry/hello',origin),'entry/hello');
+ assert.equal(parsePost(html,'entry/hello',1000,origin)?.url,origin+'/entry/hello');
+ assert.equal(parsePost(html+'<input type="password">','entry/hello',1000,origin),null);
+ assert.equal(parsePost(html.replace(origin,'https://third-blog.tistory.com'),'entry/hello',1000,origin),null);
 });
