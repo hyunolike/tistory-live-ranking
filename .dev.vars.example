@@ -1,0 +1,2 @@
+# 로컬 개발 전용. 운영에서는 wrangler secret put DEDUP_SECRET 사용.
+DEDUP_SECRET="local-development-only-change-before-production"

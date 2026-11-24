@@ -14,9 +14,9 @@
 
 ## 데이터와 공개 글 카탈로그
 
-posts(id,title,url,active)와 views(id,post_id,viewed_at), dedup(post_id,fingerprint,last_seen), rate_limits(fingerprint,minute,hits)를 둔다. 서버 시각은 UTC epoch milliseconds. ranking은 현재 시각에서 정확히 1h 또는 24h 전 이상, 현재 시각 이하의 views를 합산한다.
+posts(id,title,url,active,verified_at,checked_at)와 views(id,post_id,viewed_at), dedup(post_id,fingerprint,last_seen), rate_limits(fingerprint,minute,hits)를 둔다. checked_at은 실패한 시도도 포함하며 verified_at은 성공한 공개 상태 검증 시각이다. 실패한 글이 전체 갱신을 독점하지 않도록 checked_at 순서로 순환한다. 서버 시각은 UTC epoch milliseconds. ranking은 현재 시각에서 정확히 1h 또는 24h 전 이상, 현재 시각 이하의 views를 합산한다.
 
-운영자가 `catalog:sync`를 실행해 고정 블로그 origin의 sitemap과 숫자형 공개 글을 읽고 제목과 canonical URL을 기록한다. 보호글과 외부 canonical은 제외한다. 오류가 난 동기화는 기존 카탈로그를 덮어쓰지 않는다. 생성한 catalog.sql을 D1에 적용할 때 목록에서 사라진 글은 inactive로 전환한다. 브라우저가 보낸 제목과 URL은 저장하지 않는다.
+운영자가 `catalog:sync`를 실행해 고정 블로그 origin의 sitemap과 숫자형 공개 글을 읽고 제목과 canonical URL을 기록한다. og:type=article, 일치하는 canonical, #article-view가 모두 있어야 하며 보호글 클래스가 있으면 제외한다. 오류가 난 동기화는 기존 카탈로그를 덮어쓰지 않는다. 생성한 catalog.sql을 D1에 적용할 때 목록에서 사라진 글은 inactive로 전환한다. 브라우저가 보낸 제목과 URL은 저장하지 않는다. 검증 시각이 24시간을 넘은 글은 수집과 랭킹에서 제외한다. 매시간 sitemap을 확인해 새 후보를 등록하고, 검증이 가장 오래된 글 10개를 다시 확인한다. 삭제/보호 전환의 즉시 반영은 보장하지 않는다.
 
 ## API 계약
 
@@ -29,7 +29,7 @@ posts(id,title,url,active)와 views(id,post_id,viewed_at), dedup(post_id,fingerp
 
 CF-Connecting-IP를 일자와 서버 비밀키로 HMAC하고 원본 IP는 저장하지 않는다. 로컬 테스트에서만 없는 IP를 loopback으로 간주한다. 운영에서 헤더 또는 비밀키가 없으면 503으로 실패한다. IP당 UTC 분 버킷 30건 제한. Origin과 입력 검증 후 D1 접근한다.
 
-D1 batch 트랜잭션에서 조건부 dedup UPSERT와 `changes()`에 따른 view INSERT를 순서대로 실행한다. 동일 글에 동시 요청해도 한 번만 집계한다. 일자 HMAC 교체 시 중복 기준이 초기화되는 한계는 명세에 적는다. DB 실패에는 성공 응답을 보내지 않는다. 매일 정리 작업으로 7일 지난 조회, 만료 dedup, 5분 지난 rate limit을 지운다.
+D1 batch 트랜잭션에서 공개 상태 확인, 조건부 dedup UPSERT와 `changes()`에 따른 view INSERT를 순서대로 실행한다. 동일 글에 동시 요청해도 한 번만 집계한다. 일자 HMAC 교체 시 중복 기준이 초기화되는 한계는 명세에 적는다. DB 실패에는 성공 응답을 보내지 않는다. 매시간 정리 작업으로 7일 지난 조회, 만료 dedup, 5분 지난 rate limit을 지운다.
 
 ## 위젯과 디자인
 
@@ -48,5 +48,5 @@ D1 batch 트랜잭션에서 조건부 dedup UPSERT와 `changes()`에 따른 view
 
 ## 남은 운영 단계
 
-실제 DB ID 설정, 충분히 긴 DEDUP_SECRET 등록, 운영 카탈로그 적용, 배포, 실제 스킨에 삽입 후 모바일 자동 스킨 포함 검사. 배포 성공과 실제 블로그 설치를 서로 다른 완료 조건으로 기록한다.
+실제 DB ID 설정, 충분히 긴 DEDUP_SECRET 등록, 운영 카탈로그 적용, 배포, 실제 스킨에 삽입 후 검사. 모바일웹 자동 연결을 해제해야 사용자 스킨 로더의 실행 범위를 일관되게 할 수 있다. 별도 기본 모바일웹으로 직접 /m/ 접근한 경우는 지원하지 않는다. 배포 성공과 실제 블로그 설치를 서로 다른 완료 조건으로 기록한다.
 

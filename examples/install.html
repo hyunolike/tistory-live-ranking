@@ -1,0 +1,18 @@
+<!-- hy-ranking 설치 시작: AI 채팅 공지 뒤, revenue_list_upper 치환자 앞 -->
+<style>
+/* style.css 마지막에 추가합니다. 기존 award / blog-agent 규칙은 유지합니다. */
+.hy-ranking-band { width: 100%; background: #fff; }
+.hy-ranking-inner { max-width: 1020px; margin: 0 auto; padding: 36px 0 12px; }
+.wrap-drawer .hy-ranking-inner { max-width: 780px; }
+@media screen and (max-width: 1060px) {
+  .hy-ranking-inner { padding: 28px 20px 8px; }
+}
+</style>
+<div class="hy-ranking-band">
+  <div class="hy-ranking-inner">
+    <blog-live-ranking api-base="https://tistory-live-ranking.tistory-live-ranking.workers.dev"></blog-live-ranking>
+    <noscript>인기글을 보려면 JavaScript를 켜주세요.</noscript>
+  </div>
+</div>
+<script src="https://tistory-live-ranking.tistory-live-ranking.workers.dev/widget.js" defer></script>
+<!-- hy-ranking 설치 끝: 원복하려면 시작부터 끝까지 추가한 블록만 제거 -->

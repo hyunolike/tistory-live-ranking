@@ -1,0 +1,21 @@
+:host{display:block;width:100%;min-width:0;--ranking-accent:#ef402f;--ranking-text:#333;--ranking-muted:#777;--ranking-border:#e8e8e8;color:var(--ranking-text);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",Arial,sans-serif;font-size:13px;line-height:1.6;text-align:left;color-scheme:light}
+*,*::before,*::after{box-sizing:border-box} [hidden]{display:none!important}
+.ranking{container-type:inline-size;background:#fff;border-top:2px solid var(--ranking-text);padding:23px 0 0;overflow-wrap:anywhere}
+.heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 22px}.heading-copy{min-width:0}
+.eyebrow{display:flex;align-items:center;gap:7px;color:var(--ranking-muted);font-size:11px;letter-spacing:-.01em}.live-dot{width:5px;height:5px;border-radius:50%;background:var(--ranking-accent)}
+h2{margin:4px 0 0;font-size:21px;font-weight:600;letter-spacing:-.045em;line-height:1.45}
+.period-label,.demo-label{flex:none;font-family:"SF Mono",Menlo,Consolas,Monaco,monospace;font-size:10px;color:var(--ranking-muted)}
+.demo-label{padding:2px 7px;border:1px solid #ef402f55;border-radius:2px;color:#b93021}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 0 17px;border-bottom:1px solid var(--ranking-border)}
+.periods{display:flex;gap:5px}button{appearance:none;font:inherit;font-size:11px;line-height:1.5;cursor:pointer;border-radius:2px;background:#fff;color:var(--ranking-muted);border:1px solid var(--ranking-border);min-height:34px;padding:7px 11px}
+button:hover{border-color:#aaa;color:var(--ranking-text)}button[aria-pressed=true]{background:#1a1a1a;color:#fff;border-color:#1a1a1a}button:focus-visible,a:focus-visible{outline:2px solid var(--ranking-accent);outline-offset:4px}
+.metric-label{font-size:10px;color:var(--ranking-muted);white-space:nowrap}
+.posts{list-style:none;padding:0;margin:0}.posts li{display:grid;grid-template-columns:35px minmax(0,1fr) 54px;gap:13px;align-items:center;min-height:70px;padding:18px 0;border-bottom:1px solid var(--ranking-border)}
+.rank{align-self:center;font-family:"SF Mono",Menlo,Consolas,Monaco,monospace;color:#aaa;font-size:16px;font-weight:400;line-height:1.4}.posts li:first-child .rank{color:var(--ranking-accent)}
+.post-link{min-width:0;display:block;color:var(--ranking-text);text-decoration:none;font-size:13px;font-weight:400;line-height:1.65;word-break:keep-all;overflow-wrap:anywhere}.post-link:hover .post-title{text-decoration:underline;text-underline-offset:3px}
+.category{display:inline-block;padding:0 5px;margin-right:7px;border:1px solid #ef402f70;border-radius:2px;color:#c83223;font-size:9px;line-height:1.7;vertical-align:1px;white-space:nowrap}.post-title{font-size:inherit}
+.views{display:flex;align-items:baseline;justify-content:flex-end;gap:5px;font-family:"SF Mono",Menlo,Consolas,Monaco,monospace;color:#555;font-size:12px;white-space:nowrap}.views-label{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;font-size:9px;color:#888}
+.foot{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:6px 20px;padding:14px 0;color:var(--ranking-muted);font-size:10px;line-height:1.7}.stamp{font-family:"SF Mono",Menlo,Consolas,Monaco,monospace;font-size:9px}
+.state{min-height:220px;display:flex;align-items:center;justify-content:center;padding:30px 16px;border-bottom:1px solid var(--ranking-border);color:var(--ranking-muted);font-size:12px;text-align:center}.state.compact{min-height:0;padding:12px 0;text-align:left;justify-content:flex-start}.retry{display:block;margin:14px auto 20px}
+@container (max-width:420px){.ranking{padding-top:19px}.heading{margin-bottom:18px}h2{font-size:18px}.toolbar{gap:6px}.metric-label{font-size:9px}.posts li{grid-template-columns:25px minmax(0,1fr) 37px;gap:9px;padding:16px 0;min-height:75px}.rank{font-size:14px}.post-link{font-size:12px}.views{display:block;text-align:right;font-size:11px}.views-label{display:block;font-size:9px}.category{font-size:8px;margin-right:5px}.foot{display:block;font-size:9px}.stamp{display:block;margin-top:4px}button{min-height:36px;padding:7px 9px;font-size:10px}}
+@media(prefers-reduced-motion:no-preference){button,.post-link{transition:color .15s ease,border-color .15s ease}}
