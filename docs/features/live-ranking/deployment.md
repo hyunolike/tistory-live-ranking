@@ -42,3 +42,15 @@
 ## 저장소 통합
 
 기능 커밋 086bc23의 push/PR 검증 두 건(45408397541, 45408413002)이 모두 통과했다. PR #1은 2026-11-24T14:32:55Z에 main으로 병합했고 병합 커밋은 9c61776이다. 공개 About 홈페이지에도 운영 주소를 연결했다. 실제 스킨은 저장하지 않았다.
+
+
+## HOT 한 줄 위젯 — 2026-11-25 KST
+
+- PR #2: https://github.com/hyunolike/tistory-live-ranking/pull/2
+- 구현 커밋 953b47e, 원격 Verify 45422252970 성공 후 main에 83649ed로 병합.
+- Worker 버전: 9e3169c0-8f55-4fe8-962d-32e52c48f975. pnpm run deploy 성공.
+- 공개 widget.js는 HTTP 200 JavaScript, CORS *. SHA-256 `95a94c8d648449fcdca620064c6a598f89a82e68f2883979ce596b22e266b8bc`로 로컬 빌드와 일치.
+- 배포된 HTTPS 화면을 Chromium 390px로 열어 5초 순환, TOP 5 펼침, Escape 포커스 복귀를 확인했다. pageerror 0건, 조회 수집 요청 0건.
+- /health 정상. /?live=1에서 실제 빈 목록 안내를 확인했다. 운영 API의 items=[]와 collectedSince=null을 유지한다.
+- 설치 코드의 여백과 최대 너비를 한 줄 UI에 맞춰 갱신했다. 기본 빨강이며 --ranking-accent로 보라색 변경 가능.
+- 실제 티스토리 스킨은 여전히 저장하지 않았다. 다음 단계는 백업 후 examples/install.html을 현재 스킨에 추가하고 실제 글 방문의 수집과 랭킹을 확인하는 것이다.
