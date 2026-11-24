@@ -34,7 +34,7 @@ function decode(value: string): string {
 }
 
 export function parsePost(html: string, id: string, now: number): CatalogPost | null {
-  let inHead=true, inertDepth=0, protectedPage=false, publicBody=false;
+  let inHead=true, explicitHead=false, inertDepth=0, protectedPage=false, publicBody=false;
   let canonical:string|undefined, title:string|undefined, type:string|undefined;
   const inertStack:boolean[]=[];
   const headTags=new Set(['html','head','meta','link','title','base','script','style','template','noscript']);
@@ -42,13 +42,16 @@ export function parsePost(html: string, id: string, now: number): CatalogPost | 
     onopentag(name,a){
       const inert=inertDepth>0||['script','style','template','noscript'].includes(name);
       inertStack.push(inert);if(inert){inertDepth++;return;}
-      if(name==='body'||!headTags.has(name))inHead=false;
+      if(name==='head')explicitHead=true;
+      // Tistory can place a custom widget before its generated canonical link.
+      // Honor an explicit head boundary; infer it only for HTML fragments.
+      if(name==='body'||(!explicitHead&&!headTags.has(name)))inHead=false;
       if(/(?:^|\s)(?:area-protected|article-header-protected)(?:\s|$)/.test(a.class??''))protectedPage=true;
       if(name==='meta'&&inHead){if(a.property==='og:title')title??=a.content?.trim();if(a.property==='og:type')type??=a.content;}
       if(name==='link'&&inHead&&a.rel==='canonical')canonical??=a.href;
       if(!inHead&&a.id==='article-view')publicBody=true;
     },
-    onclosetag(name){if(inertStack.pop())inertDepth--;if(name==='head')inHead=false;}
+    onclosetag(name){const inert=inertStack.pop();if(inert)inertDepth--;if(name==='head'&&!inert){explicitHead=false;inHead=false;}}
   },{decodeEntities:true});
   parser.end(html);
   if (protectedPage || !publicBody || type !== 'article' || !canonical || postIdFromUrl(canonical) !== id || !title || title.length > 300) return null;

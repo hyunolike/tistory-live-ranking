@@ -6,19 +6,27 @@
   "assets": {
     "directory": "./dist/public",
     "binding": "ASSETS",
-    "run_worker_first": ["/api/*", "/health", "/widget.js"]
+    "run_worker_first": [
+      "/api/*",
+      "/health",
+      "/widget.js"
+    ]
   },
   "vars": {
     "BLOG_ORIGIN": "https://hyunolike.tistory.com",
-    "ENVIRONMENT": "development"
+    "ENVIRONMENT": "production"
   },
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "ranking",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_name": "tistory-live-ranking",
+      "database_id": "26b59774-dc0a-4d65-819a-f81bc1495157",
       "migrations_dir": "migrations"
     }
   ],
-  "triggers": { "crons": ["15 * * * *"] }
+  "triggers": {
+    "crons": [
+      "15 * * * *"
+    ]
+  }
 }

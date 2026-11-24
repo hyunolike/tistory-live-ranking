@@ -6,6 +6,14 @@
 
 [모바일 미리보기](docs/images/preview-390.png) · [320px 미리보기](docs/images/preview-320.png)
 
+## 운영 주소
+
+- [디자인 미리보기](https://tistory-live-ranking.tistory-live-ranking.workers.dev/): 순위와 조회수는 예시입니다.
+- [실제 API 결과](https://tistory-live-ranking.tistory-live-ranking.workers.dev/?live=1): 운영 집계입니다. 이 화면 자체는 조회를 수집하지 않습니다.
+- [한 번에 붙여 넣는 설치 코드](examples/install.html)
+
+공개 저장소이며 운영 Worker와 D1을 배포했습니다. 실제 티스토리 스킨 적용은 Chrome 공유 조작 확인 후 진행합니다. 적용 전까지 운영 목록은 비어 있을 수 있습니다.
+
 ## 동작
 
 - TypeScript 웹 컴포넌트가 `/widget.js` 하나로 로드됩니다.
@@ -23,7 +31,6 @@ Node.js 22.12 이상, pnpm 10.17을 사용합니다. 로컬 실행에는 Cloudfl
 ```sh
 git clone https://github.com/hyunolike/tistory-live-ranking.git
 cd tistory-live-ranking
-git switch feat/live-ranking
 pnpm install --frozen-lockfile
 cp .dev.vars.example .dev.vars
 pnpm db:migrate
@@ -59,17 +66,17 @@ pnpm test:e2e
 
 ## 운영 배포 준비
 
-아직 운영 배포나 실제 스킨 적용은 하지 않았습니다. 아래는 운영자가 실행할 단계입니다.
+운영 배포는 완료했습니다. [배포 기록](docs/features/live-ranking/deployment.md)에 버전과 검증 내용을 남겼습니다. 다른 Cloudflare 계정에 새로 배포할 때는 아래 단계에서 자신의 DB ID와 비밀값을 설정하세요.
 
-1. `pnpm exec wrangler login`과 `pnpm exec wrangler d1 create ranking`으로 운영 DB를 만듭니다.
+1. `pnpm exec wrangler login`과 `pnpm exec wrangler d1 create tistory-live-ranking`으로 운영 DB를 만듭니다.
 2. `wrangler.jsonc`의 `database_id`를 실제 ID로, `ENVIRONMENT`를 `production`으로 바꿉니다.
 3. `pnpm exec wrangler secret put DEDUP_SECRET`에 충분히 긴 임의의 비밀값을 등록합니다. `.dev.vars.example`의 값을 운영에 재사용하지 마세요.
-4. `pnpm exec wrangler d1 migrations apply ranking --remote`를 실행합니다.
-5. `pnpm catalog:sync` 후 `pnpm exec wrangler d1 execute ranking --remote --file data/catalog.sql`로 공개 글 카탈로그를 반영합니다.
+4. `pnpm exec wrangler d1 migrations apply DB --remote`를 실행합니다.
+5. `pnpm catalog:sync` 후 `pnpm exec wrangler d1 execute DB --remote --file data/catalog.sql`로 공개 글 카탈로그를 반영합니다.
 6. 검증을 통과한 뒤 `pnpm run deploy`를 실행합니다. 개발 모드나 가짜 DB ID가 남아 있으면 이 스크립트는 중단합니다. pnpm의 예약 명령인 `pnpm deploy`와 구분합니다.
 7. 공개 `/health`, 랭킹 JSON, JavaScript MIME와 CORS를 확인한 뒤 설치합니다. 운영에서 비밀키가 누락되면 수집 API는 503을 반환합니다.
 
-GitHub Actions는 검증만 수행하며 배포하지 않습니다. 현재 계정의 Actions 예산 제한으로 원격 작업은 시작되지 않았고, 로컬 검증만 완료했습니다. 무료 제공량과 초과 요금은 배포 시점의 Cloudflare 계정에서 확인하세요.
+GitHub Actions는 검증만 수행하며 배포하지 않습니다. 공개 저장소 전환 후 [원격 검증도 통과](https://github.com/hyunolike/tistory-live-ranking/actions/runs/45401790601)했습니다. 무료 제공량과 초과 요금은 배포 시점의 Cloudflare 계정에서 확인하세요.
 
 ## 티스토리 설치
 
@@ -77,14 +84,14 @@ GitHub Actions는 검증만 수행하며 배포하지 않습니다. 현재 계�
 
 - **상단:** [top-band.html](examples/top-band.html)을 AI 채팅 공지 스크립트 뒤, `[##_revenue_list_upper_##]` 앞에 넣습니다. [top-band.css](examples/top-band.css)는 `style.css` 맨 아래에 추가합니다.
 - **사이드바:** [sidebar.html](examples/sidebar.html)을 별도 사이드바 모듈로 추가합니다. 300px 영역에도 맞춰집니다.
-- 모든 예시의 `YOUR-WORKER`를 실제 배포 주소로 바꾸고 `widget.js`는 `</body>` 앞에 한 번 넣습니다.
+- 예시에는 실제 운영 주소가 들어 있습니다. 한 파일로 추가하려면 [install.html](examples/install.html)을 지정한 위치에 붙여 넣습니다. 여러 삽입 예시를 함께 사용할 때 `widget.js`는 한 번만 넣습니다.
 - 표시 영역을 홈에만 넣더라도 **수집 스크립트는 모든 공개 글에서 실행**되어야 합니다. 실제 공개 글에서 `/api/views`의 202를 확인하세요.
 - 티스토리의 **모바일웹 자동 연결을 해제**해 사용자 스킨을 사용합니다. 직접 `/m/글번호`로 들어가 기본 모바일웹을 쓰면 로더 실행과 집계를 지원하지 않습니다.
 - 선정 기록, 프로젝트 메뉴, AI 채팅과 기존 사이드바 목록은 그대로 둡니다. 문제 발생 시 추가한 HTML/CSS/script 조각을 제거하면 됩니다.
 
 ```html
-<blog-live-ranking api-base="https://YOUR-WORKER.workers.dev"></blog-live-ranking>
-<script src="https://YOUR-WORKER.workers.dev/widget.js" defer></script>
+<blog-live-ranking api-base="https://tistory-live-ranking.tistory-live-ranking.workers.dev"></blog-live-ranking>
+<script src="https://tistory-live-ranking.tistory-live-ranking.workers.dev/widget.js" defer></script>
 ```
 
 색상은 컴포넌트의 CSS 변수 `--ranking-accent`, `--ranking-text`, `--ranking-muted`, `--ranking-border`로 조정할 수 있습니다. 수집을 끄고 디자인만 볼 때는 컴포넌트에 `demo`, 로더에 `data-track="false"`를 각각 지정합니다.

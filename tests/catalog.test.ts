@@ -40,3 +40,9 @@ test('upstream limits count streamed bytes rather than decoded characters',async
   await assert.rejects(()=>readLimited(response,10),/limit/i);
   assert.equal(await readLimited(new Response('가'),3),'가');
 });
+
+
+test('Tistory explicit head remains recognizable around an embedded custom widget',()=>{
+  const html='<html><head><meta property="og:type" content="article"><meta property="og:title" content="공개 글"><script type="module" src="https://example.com/widget.js"></script><visitor-village count="10"></visitor-village><link rel="canonical" href="https://hyunolike.tistory.com/81"></head><body><div id="article-view">공개 본문</div></body></html>';
+  assert.deepEqual(parsePost(html,'81',1000),{id:'81',title:'공개 글',url:'https://hyunolike.tistory.com/81',verifiedAt:1000});
+});

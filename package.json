@@ -8,14 +8,14 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "dev": "pnpm build:widget && wrangler dev --local --port 8787",
+    "dev": "pnpm build:widget && wrangler dev --local --port 8787 --var ENVIRONMENT:development",
     "build:widget": "tsx scripts/build.ts",
     "build": "pnpm build:widget && wrangler deploy --dry-run --outdir dist/worker",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.worker.json --noEmit",
     "test": "tsx --test --test-concurrency=1 tests/*.test.ts",
     "test:e2e": "playwright test",
-    "db:migrate": "wrangler d1 migrations apply ranking --local",
-    "db:seed": "wrangler d1 execute ranking --local --file data/catalog.sql",
+    "db:migrate": "wrangler d1 migrations apply DB --local",
+    "db:seed": "wrangler d1 execute DB --local --file data/catalog.sql",
     "catalog:sync": "tsx scripts/sync-catalog.ts",
     "deploy": "tsx scripts/deploy.ts"
   },
