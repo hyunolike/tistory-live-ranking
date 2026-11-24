@@ -9,6 +9,20 @@ export class BlogLiveRanking extends HTMLElement {
   private request?:AbortController;
   private interval?:ReturnType<typeof setInterval>;
   private mounted=false;
+  private rotation?:ReturnType<typeof setInterval>;
+  private items:RankingResponse['items']=[];
+  private current=0;
+  private paused=false;
+  private hovered=false;
+  private expanded=false;
+  private motion=matchMedia('(prefers-reduced-motion: reduce)');
+  private motionChanged=()=>this.syncRotation();
+  private outside=(event:PointerEvent)=>{if(!event.composedPath().includes(this))this.setExpanded(false);};
+  private ticker!:HTMLAnchorElement;
+  private placeholder!:HTMLElement;
+  private toggle!:HTMLButtonElement;
+  private pause!:HTMLButtonElement;
+  private panel!:HTMLElement;
   private previous=new Map<RankingWindow,RankingResponse>();
   private root:ShadowRoot;
   private list:HTMLOListElement;
@@ -17,6 +31,7 @@ export class BlogLiveRanking extends HTMLElement {
   private retry:HTMLButtonElement;
   private visibility=()=>{
     this.stopTimer();
+    this.syncRotation();
     if(!document.hidden&&this.isConnected){void this.load();this.startTimer();}
     else {++this.generation;this.request?.abort();}
   };
@@ -25,14 +40,37 @@ export class BlogLiveRanking extends HTMLElement {
     super();
     this.root=this.attachShadow({mode:'open'});
     this.root.innerHTML=`<style>${css}</style>
-      <section class="ranking" aria-labelledby="ranking-heading">
-        <header class="heading"><div class="heading-copy"><span class="eyebrow"><span class="live-dot" aria-hidden="true"></span>지금 이 블로그에서</span><h2 id="ranking-heading">많이 읽는 글</h2></div><span class="demo-label" hidden>예시 데이터</span><span class="period-label">최근 24시간</span></header>
-        <div class="toolbar"><div class="periods" role="group" aria-label="집계 기간"><button type="button" data-window="1h" aria-pressed="false">최근 1시간</button><button type="button" data-window="24h" aria-pressed="true">최근 24시간</button></div><span class="metric-label">중복 제외 조회</span></div>
-        <ol class="posts" aria-label="인기글 순위"></ol>
-        <div class="state" role="status" aria-live="polite" hidden></div>
-        <button type="button" class="retry" hidden>다시 불러오기</button>
-        <footer class="foot"><span class="basis">같은 IP의 같은 글은 30분에 한 번 반영합니다.</span><span class="stamp"></span></footer>
+      <section class="ranking" aria-label="실시간 인기글">
+        <div class="ticker">
+          <span class="hot">HOT</span>
+          <a class="ticker-link" hidden><span class="ticker-content"><span class="ticker-rank"></span><span class="ticker-title"></span></span></a>
+          <span class="ticker-placeholder" role="status">인기글을 불러오는 중입니다.</span>
+          <span class="refresh-warning" hidden title="갱신하지 못해 이전 결과를 표시합니다." aria-label="갱신 지연">!</span>
+          <span class="demo-label" hidden>예시 데이터</span>
+          <button class="rotation" type="button" aria-label="자동 순환 일시정지" aria-pressed="false" hidden><span class="pause-icon" aria-hidden="true"></span></button>
+          <button class="toggle" type="button" aria-label="인기글 전체 보기" aria-expanded="false" aria-controls="ranking-panel"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 16 16"><path d="m4 6 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
+        </div>
+        <div class="retry-slot"><button type="button" class="retry" hidden>다시 불러오기</button></div>
+        <div class="panel" id="ranking-panel" hidden>
+          <header class="heading"><h2>지금 많이 읽는 글 <span>TOP 5</span></h2><span class="period-label">최근 24시간</span></header>
+          <div class="toolbar"><div class="periods" role="group" aria-label="집계 기간"><button type="button" data-window="1h" aria-pressed="false">최근 1시간</button><button type="button" data-window="24h" aria-pressed="true">최근 24시간</button></div><span class="metric-label">중복 제외 조회</span></div>
+          <ol class="posts" aria-label="인기글 순위"></ol>
+          <div class="state" role="status" aria-live="polite" hidden></div>
+          <footer class="foot"><span class="basis">같은 IP의 같은 글은 30분에 한 번 반영합니다.</span><span class="stamp"></span></footer>
+        </div>
       </section>`;
+    this.ticker=this.root.querySelector('.ticker-link')!;
+    this.placeholder=this.root.querySelector('.ticker-placeholder')!;
+    this.toggle=this.root.querySelector('.toggle')!;
+    this.pause=this.root.querySelector('.rotation')!;
+    this.panel=this.root.querySelector('.panel')!;
+    this.toggle.addEventListener('click',()=>this.setExpanded(!this.expanded));
+    this.pause.addEventListener('click',()=>{this.paused=!this.paused;this.syncRotation();});
+    this.addEventListener('pointerenter',()=>{this.hovered=true;this.syncRotation();});
+    this.addEventListener('pointerleave',()=>{this.hovered=false;this.syncRotation();});
+    this.addEventListener('focusin',()=>this.syncRotation());
+    this.addEventListener('focusout',()=>queueMicrotask(()=>this.syncRotation()));
+    this.root.addEventListener('keydown',event=>{if(event instanceof KeyboardEvent&&event.key==='Escape'&&this.expanded){event.preventDefault();this.setExpanded(false);this.toggle.focus();}});
     this.list=this.root.querySelector('ol')!;
     this.status=this.root.querySelector('.state')!;
     this.stamp=this.root.querySelector('.stamp')!;
@@ -47,9 +85,42 @@ export class BlogLiveRanking extends HTMLElement {
     this.retry.addEventListener('click',()=>void this.load());
   }
 
-  connectedCallback(){this.mounted=true;document.addEventListener('visibilitychange',this.visibility);void this.load();this.startTimer();}
-  disconnectedCallback(){this.mounted=false;++this.generation;this.request?.abort();this.stopTimer();document.removeEventListener('visibilitychange',this.visibility);}
+  connectedCallback(){this.mounted=true;this.motion.addEventListener('change',this.motionChanged);document.addEventListener('pointerdown',this.outside);document.addEventListener('visibilitychange',this.visibility);void this.load();this.startTimer();}
+  disconnectedCallback(){this.mounted=false;this.hovered=false;++this.generation;this.request?.abort();this.stopTimer();this.stopRotation();this.motion.removeEventListener('change',this.motionChanged);document.removeEventListener('pointerdown',this.outside);document.removeEventListener('visibilitychange',this.visibility);}
   attributeChangedCallback(){if(this.mounted&&this.isConnected){this.previous.clear();void this.load();this.stopTimer();this.startTimer();}}
+  private setExpanded(expanded:boolean){
+    this.expanded=expanded;this.panel.hidden=!expanded;
+    this.toggle.setAttribute('aria-expanded',String(expanded));
+    this.syncRotation();
+  }
+  private stopRotation(){if(this.rotation)clearInterval(this.rotation);this.rotation=undefined;this.root.querySelector('.ticker-content')?.getAnimations().forEach(animation=>animation.cancel());}
+  private syncRotation(){
+    this.stopRotation();
+    this.pause.hidden=this.items.length<2||this.motion.matches;
+    this.pause.setAttribute('aria-label',this.paused?'자동 순환 시작':'자동 순환 일시정지');
+    this.pause.setAttribute('aria-pressed',String(this.paused));
+    if(this.mounted&&this.isConnected&&this.items.length>1&&!this.paused&&!this.hovered&&!this.expanded&&!this.root.activeElement&&!document.hidden&&!this.motion.matches){
+      this.rotation=setInterval(()=>{this.current=(this.current+1)%this.items.length;this.showTicker(true);},5_000);
+    }
+  }
+  private showTicker(animate=false){
+    const item=this.items[this.current];if(!item)return;
+    this.ticker.hidden=false;this.placeholder.hidden=true;
+    this.ticker.href=item.url;this.ticker.title=item.title;
+    this.root.querySelector('.ticker-rank')!.textContent=String(this.current+1);
+    this.root.querySelector('.ticker-title')!.textContent=item.title;
+    if(animate&&!this.motion.matches){
+      const style=getComputedStyle(this);
+      const distance=style.getPropertyValue('--text-swap-translate-y').trim()||'4px';
+      const duration=parseFloat(style.getPropertyValue('--text-swap-dur'))||150;
+      this.root.querySelector('.ticker-content')!.animate([{opacity:0,transform:`translateY(${distance})`},{opacity:1,transform:'translateY(0)'}],{duration,easing:'ease-in-out'});
+    }
+  }
+  private tickerMessage(message:string){
+    this.items=[];this.ticker.hidden=true;this.ticker.removeAttribute('href');
+    this.placeholder.hidden=false;this.placeholder.textContent=message;
+    this.syncRotation();
+  }
   private stopTimer(){if(this.interval)clearInterval(this.interval);this.interval=undefined;}
   private startTimer(){if(!this.hasAttribute('demo')&&!document.hidden&&!this.interval)this.interval=setInterval(()=>void this.load(),60_000);}
   private updateSelection(){
@@ -65,9 +136,10 @@ export class BlogLiveRanking extends HTMLElement {
     (this.root.querySelector('.demo-label') as HTMLElement).hidden=!demo;
     (this.root.querySelector('.period-label') as HTMLElement).hidden=demo;
     this.retry.hidden=true;
+    (this.root.querySelector('.refresh-warning') as HTMLElement).hidden=true;
     const previous=this.previous.get(this.selected);
     if(previous)this.render(previous);
-    else {this.list.replaceChildren();this.list.hidden=true;this.status.hidden=false;this.status.textContent='인기글을 불러오는 중입니다.';this.stamp.textContent='';}
+    else {this.list.replaceChildren();this.list.hidden=true;this.status.hidden=true;this.tickerMessage('인기글을 불러오는 중입니다.');this.stamp.textContent='';}
     this.setAttribute('aria-busy','true');
     if(demo){this.render(demoRanking(this.selected));this.removeAttribute('aria-busy');return;}
     const controller=new AbortController();
@@ -88,8 +160,10 @@ export class BlogLiveRanking extends HTMLElement {
       this.render(value);
     }catch{
       if(generation!==this.generation||!this.isConnected)return;
-      this.status.hidden=false;
-      this.status.textContent=previous?'갱신하지 못했습니다. 이전 결과를 표시합니다.':'인기글을 불러오지 못했습니다.';
+      this.status.hidden=!previous;
+      if(!previous)this.tickerMessage('인기글을 불러오지 못했습니다.');
+      (this.root.querySelector('.refresh-warning') as HTMLElement).hidden=!previous;
+      this.status.textContent=previous?'갱신하지 못했습니다. 이전 결과를 표시합니다.':'';
       this.status.classList.toggle('compact',Boolean(previous));
       this.retry.hidden=false;
     }finally{
@@ -100,12 +174,17 @@ export class BlogLiveRanking extends HTMLElement {
 
   private render(data:RankingResponse){
     const focused=this.root.activeElement;
-    const focusedUrl=focused instanceof HTMLAnchorElement?focused.href:null;
+    const focusedUrl=focused instanceof HTMLAnchorElement&&focused.classList.contains('post-link')?focused.href:null;
+    const currentId=this.items[this.current]?.postId;
+    this.items=data.items;
+    this.current=Math.max(0,this.items.findIndex(item=>item.postId===currentId));
+    if(this.items.length)this.showTicker();else this.tickerMessage('아직 집계된 글이 없습니다.');
+    this.syncRotation();
     this.list.replaceChildren();
     this.list.hidden=!data.items.length;
     this.status.classList.remove('compact');
-    this.status.hidden=Boolean(data.items.length);
-    this.status.textContent=data.items.length?'':'아직 집계된 글이 없습니다.';
+    this.status.hidden=true;
+    this.status.textContent='';
     for(const [i,item]of data.items.entries()){
       const li=document.createElement('li');
       const rank=document.createElement('span');rank.className='rank';rank.textContent=String(i+1).padStart(2,'0');rank.setAttribute('aria-hidden','true');

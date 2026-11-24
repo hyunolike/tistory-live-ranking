@@ -1,7 +1,8 @@
 /* style.css 마지막에 추가합니다. 기존 award / blog-agent 규칙은 유지합니다. */
 .hy-ranking-band { width: 100%; background: #fff; }
-.hy-ranking-inner { max-width: 1020px; margin: 0 auto; padding: 36px 0 12px; }
+.hy-ranking-inner { max-width: 1020px; margin: 0 auto; padding: 8px 0; }
+.hy-ranking-inner blog-live-ranking { max-width: 560px; }
 .wrap-drawer .hy-ranking-inner { max-width: 780px; }
 @media screen and (max-width: 1060px) {
-  .hy-ranking-inner { padding: 28px 20px 8px; }
+  .hy-ranking-inner { padding: 8px 20px; }
 }
