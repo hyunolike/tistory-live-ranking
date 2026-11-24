@@ -1,0 +1,30 @@
+{
+  "name": "tistory-live-ranking",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.17.0",
+  "engines": { "node": ">=22.12.0" },
+  "scripts": {
+    "dev": "pnpm build:widget && wrangler dev --local --port 8787",
+    "build:widget": "tsx scripts/build.ts",
+    "build": "pnpm build:widget && wrangler deploy --dry-run --outdir dist/worker",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test --test-concurrency=1 tests/*.test.ts",
+    "test:e2e": "playwright test",
+    "db:migrate": "wrangler d1 migrations apply ranking --local",
+    "db:seed": "wrangler d1 execute ranking --local --file data/catalog.sql",
+    "catalog:sync": "tsx scripts/sync-catalog.ts",
+    "deploy": "tsx scripts/deploy.ts"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20261124.1",
+    "@playwright/test": "1.65.1",
+    "@types/node": "22.20.5",
+    "esbuild": "0.28.2",
+    "miniflare": "4.20260730.0",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "wrangler": "4.167.0"
+  }
+}
